@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  # The React Frontend Service
+  frontend:
+    build: ./frontend
+    ports:
+      # Map port 3000 on your local machine to port 80 inside the container
+      - "3000:80"
+
+  # The Node.js API Gateway Service
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      # Map port 3001 on your local machine to port 3001 inside the container
+      - "3002:3001"
+
+  # The Python ML Service
+  ml-service:
+    build: ./ml-service
+    ports:
+      # Map port 5000 on your local machine to port 5000 inside the container
+      - "5000:5000"
+    command: sh -c "sleep 1d"

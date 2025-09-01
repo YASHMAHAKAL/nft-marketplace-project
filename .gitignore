@@ -1,0 +1,13 @@
+# Node dependencies
+node_modules/
+
+# Python virtual environment
+venv/
+
+# Terraform state and providers
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Build outputs
+dist/
