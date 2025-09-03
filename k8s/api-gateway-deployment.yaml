@@ -17,6 +17,15 @@ spec:
           image: 480731385241.dkr.ecr.us-east-1.amazonaws.com/nft-marketplace/api-gateway:latest # Placeholder Image URL
           ports:
             - containerPort: 3001
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+
+ 
 ---
 apiVersion: v1
 kind: Service
