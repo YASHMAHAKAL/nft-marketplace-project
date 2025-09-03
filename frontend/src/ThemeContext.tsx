@@ -1,26 +1,21 @@
-import React, { createContext, useState, useMemo, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import { lightTheme, darkTheme } from './theme';
+import { greekTheme } from './theme';
 
-const ThemeContext = createContext({
-  toggleTheme: () => {},
-});
+// We create a context, but we don't need to put anything in it for now.
+const ThemeContext = createContext({});
 
+// This line exports the hook that components will use.
 export const useThemeContext = () => useContext(ThemeContext);
 
 export const CustomThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [mode, setMode] = useState<'light' | 'dark'>('dark');
-
-  const toggleTheme = () => {
-    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-  };
-
-  const theme = useMemo(() => (mode === 'light' ? lightTheme : darkTheme), [mode]);
+  // The value here could be used to provide a toggle function in the future
+  const value = {}; 
 
   return (
-    <ThemeContext.Provider value={{ toggleTheme }}>
-      <MuiThemeProvider theme={theme}>
+    <ThemeContext.Provider value={value}>
+      <MuiThemeProvider theme={greekTheme}>
         <CssBaseline />
         {children}
       </MuiThemeProvider>

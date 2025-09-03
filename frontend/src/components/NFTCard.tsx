@@ -23,7 +23,8 @@ export const NFTCard = ({ tokenId, name, image, price }: NFTCardProps) => {
     }
     setLoading(true);
     try {
-      const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // <-- PASTE YOUR NEW ADDRESS HERE
+      // Remember to use the address from your local Hardhat node
+      const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, NFTMarketplaceAbi.abi, signer);
@@ -46,7 +47,16 @@ export const NFTCard = ({ tokenId, name, image, price }: NFTCardProps) => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-      <Card>
+      <Card sx={{ 
+        backgroundColor: 'background.paper',
+        border: '1px solid',
+        borderColor: 'rgba(255, 193, 7, 0.2)', // Subtle gold border
+        transition: 'border-color 0.3s, box-shadow 0.3s',
+        '&:hover': {
+          borderColor: 'secondary.main', // Bright gold border on hover
+          boxShadow: '0px 0px 15px rgba(255, 193, 7, 0.5)', // Gold glow on hover
+        }
+      }}>
         <CardMedia component="img" height="240" image={image} alt={name} />
         <CardContent>
           <Typography gutterBottom variant="h6" component="div">{name}</Typography>
@@ -54,11 +64,12 @@ export const NFTCard = ({ tokenId, name, image, price }: NFTCardProps) => {
           <Box sx={{ mt: 2 }}>
             <Button 
               variant="contained" 
+              color="secondary" // Use gold for the button
               fullWidth 
               onClick={handlePurchase} 
-              disabled={loading || !account} // Disable button if no wallet is connected
+              disabled={loading || !account}
             >
-              {loading ? <CircularProgress size={24} /> : "Buy Now"}
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Buy Now"}
             </Button>
           </Box>
         </CardContent>
