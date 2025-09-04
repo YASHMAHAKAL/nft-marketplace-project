@@ -1,15 +1,32 @@
-import { create } from 'zustand';
+// frontend/src/store.ts
+
+import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface WalletState {
   account: string | null;
-  jwt: string | null;
-  setAccount: (account: string | null) => void;
-  setJwt: (jwt: string | null) => void;
 }
 
-export const useWalletStore = create<WalletState>((set) => ({
+const initialState: WalletState = {
   account: null,
-  jwt: null,
-  setAccount: (account) => set({ account }),
-  setJwt: (jwt) => set({ jwt }),
-}));
+};
+
+const walletSlice = createSlice({
+  name: 'wallet',
+  initialState,
+  reducers: {
+    setAccount: (state, action: PayloadAction<string | null>) => {
+      state.account = action.payload;
+    },
+  },
+});
+
+export const { setAccount } = walletSlice.actions;
+
+export const store = configureStore({
+  reducer: {
+    wallet: walletSlice.reducer,
+  },
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

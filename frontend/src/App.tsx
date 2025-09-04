@@ -1,21 +1,32 @@
-import { Box } from '@mui/material';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Header } from './components/Header';
-import { HomePage } from './pages/home';
-import { MintPage } from './pages/mint';
+// frontend/src/App.tsx
 
-function App() {
+import { useState } from "react";
+import { Header } from "./components/Header";
+import { Hero } from "./components/Hero";
+import { Gallery } from "./components/Gallery";
+import { Periods } from "./components/Periods";
+import { Footer } from "./components/Footer";
+import { MintModal } from "./components/MintModal";
+
+export default function App() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isMintModalOpen, setIsMintModalOpen] = useState(false);
+
   return (
-    <Router>
-      <Box>
-        <Header />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/mint" element={<MintPage />} />
-        </Routes>
-      </Box>
-    </Router>
+    // --- MODIFIED: Removed old theme classes, added a new dark background ---
+    <div className="dark min-h-screen bg-zinc-950 text-white">
+      <Header 
+        onSearch={setSearchQuery} 
+        onMintClick={() => setIsMintModalOpen(true)}
+      />
+      <main>
+        <Hero />
+        <Gallery searchQuery={searchQuery} />
+        <Periods />
+      </main>
+      <Footer />
+      
+      {isMintModalOpen && <MintModal onClose={() => setIsMintModalOpen(false)} />}
+    </div>
   );
 }
-
-export default App;
