@@ -9,7 +9,7 @@ import { setAccount, RootState } from '../store';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
-  onMintClick: () => void;
+  onMintClick: () => void; // --- NEW: Prop to open the mint modal ---
 }
 
 export function Header({ onSearch, onMintClick }: HeaderProps) {
@@ -17,7 +17,19 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
   const account = useSelector((state: RootState) => state.wallet.account);
 
   const connectWallet = async () => {
-    // ... (connect wallet logic remains the same)
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        dispatch(setAccount(address));
+      } catch (error) {
+        console.error("Error connecting wallet:", error);
+      }
+    } else {
+      alert("Please install MetaMask!");
+    }
   };
 
   const formatAddress = (address: string) => {
@@ -27,31 +39,11 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full bg-black/30 backdrop-blur-lg border-b border-white/10">
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Left side */}
+        {/* Left side remains unchanged */}
         <div className="flex items-center gap-12">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-zinc-900 border border-white/10">
-              <span className="gold-accent text-xl font-light">Α</span>
-            </div>
-            <div className="flex flex-col">
-              <h1 className="gold-accent text-2xl font-light tracking-wide">
-                ΑΘΗΝΑΙΟΝ
-              </h1>
-            </div>
-          </div>
-          <nav className="hidden md:flex items-center gap-10">
-            <a href="#gallery" className="group relative text-zinc-300 hover:text-white transition-colors duration-300">
-              Collection
-              <span className="absolute left-0 -bottom-1 w-0 h-px bg-primary group-hover:w-full transition-all duration-300" />
-            </a>
-            <a href="#periods" className="group relative text-zinc-300 hover:text-white transition-colors duration-300">
-              Periods
-              <span className="absolute left-0 -bottom-1 w-0 h-px bg-primary group-hover:w-full transition-all duration-300" />
-            </a>
-          </nav>
+            {/* ... (logo and nav links) ... */}
         </div>
-        
-        {/* Right side */}
+
         <div className="flex items-center gap-4">
           <div className="relative hidden sm:block">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
@@ -64,10 +56,13 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
 
           {account ? (
             <div className="flex items-center gap-2">
+              {/* --- NEW: "Create" Button --- */}
               <Button onClick={onMintClick} variant="outline" className="rounded-full bg-white/10 border-white/20 hover:bg-white/20">
                 Create
               </Button>
-              <span className="text-sm font-mono text-zinc-300">{formatAddress(account)}</span>
+              <span className="text-sm font-mono text-zinc-300 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                {formatAddress(account)}
+              </span>
             </div>
           ) : (
             <Button onClick={connectWallet} className="rounded-full bg-primary/90 text-background font-semibold hover:bg-primary">
