@@ -54,7 +54,8 @@ export function ArtworkCard({ artwork }: ArtworkCardProps) {
 
   return (
     <Card className="group relative w-full bg-zinc-900/50 border border-white/10 rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:border-primary/50 hover:shadow-primary/20">
-      <div className="absolute inset-0 transition-all duration-500 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-zinc-900/50 to-transparent" />
+      <div className="absolute inset-0 transition-all duration-500 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-zinc-900/50 to-transparent pointer-events-none" />
+
 
       <div className="aspect-[4/5] overflow-hidden">
         <img

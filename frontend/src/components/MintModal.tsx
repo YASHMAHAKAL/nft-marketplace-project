@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { ImageUp } from 'lucide-react';
 import NFTMarketplace from '../abi/NFTMarketplace.json';
 
-const contractAddress = "YOUR_DEPLOYED_CONTRACT_ADDRESS";
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 interface MintModalProps {
   onClose: () => void;
