@@ -5,7 +5,7 @@ import { ArtworkCard, type Artwork } from "./ArtworkCard";
 import { ArtworkFilters } from "./ArtworkFilters";
 import { ethers } from 'ethers';
 
-// --- NEW: Import contract ABI ---
+// --- NEW: Import contract ABI -----
 import NFTMarketplace from '../abi/NFTMarketplace.json';
 
 // --- IMPORTANT: CONFIGURE THESE VALUES ---
