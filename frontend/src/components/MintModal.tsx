@@ -9,8 +9,10 @@ import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { ImageUp } from 'lucide-react';
 import NFTMarketplace from '../abi/NFTMarketplace.json';
+import { CONTRACT_ADDRESS } from "../config/contract";
 
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+
+const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi, signer);
 
 interface MintModalProps {
   onClose: () => void;

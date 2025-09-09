@@ -3,12 +3,13 @@
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { ethers } from 'ethers';
+import { CONTRACT_ADDRESS } from "../config/contract";
 
 // --- NEW: Import contract ABI ---
 import NFTMarketplace from '../abi/NFTMarketplace.json';
 
 // --- IMPORTANT: UPDATE THIS ADDRESS ---
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi, signer);
 
 export interface Artwork {
   id: string; // Token ID

@@ -4,12 +4,14 @@ import { useState, useMemo, useEffect } from "react";
 import { ArtworkCard, type Artwork } from "./ArtworkCard";
 import { ArtworkFilters } from "./ArtworkFilters";
 import { ethers } from 'ethers';
+import { CONTRACT_ADDRESS } from "../config/contract";
+
 
 // --- NEW: Import contract ABI -----
 import NFTMarketplace from '../abi/NFTMarketplace.json';
 
 // --- IMPORTANT: CONFIGURE THESE VALUES ---
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Paste the address from your deployment
+const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi, signer); // Paste the address from your deployment
 const rpcUrl = "http://127.0.0.1:8545/"; // This is the address for your local Hardhat node
 
 interface GalleryProps {
