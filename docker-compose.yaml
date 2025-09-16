@@ -21,4 +21,18 @@ services:
     ports:
       # Map port 5000 on your local machine to port 5000 inside the container
       - "5000:5000"
-    command: sh -c "sleep 1d"
+    
+  
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: nft_marketplace
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

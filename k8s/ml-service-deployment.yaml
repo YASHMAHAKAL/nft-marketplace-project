@@ -17,6 +17,14 @@ spec:
           image: <YOUR_AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/nft-marketplace/ml-service:latest # Placeholder
           ports:
             - containerPort: 5000
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi" 
+     
 ---
 apiVersion: v1
 kind: Service

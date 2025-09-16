@@ -11,3 +11,6 @@ venv/
 
 # Build outputs
 dist/
+
+# Env Secured
+.env

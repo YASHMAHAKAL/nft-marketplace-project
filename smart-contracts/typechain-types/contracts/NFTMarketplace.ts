@@ -45,6 +45,7 @@ export interface NFTMarketplaceInterface extends Interface {
       | "supportsInterface"
       | "symbol"
       | "tokenURI"
+      | "totalSupply"
       | "transferFrom"
       | "transferOwnership"
   ): FunctionFragment;
@@ -126,6 +127,10 @@ export interface NFTMarketplaceInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "totalSupply",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferFrom",
     values: [AddressLike, AddressLike, BigNumberish]
   ): string;
@@ -183,6 +188,10 @@ export interface NFTMarketplaceInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
     data: BytesLike
@@ -453,6 +462,8 @@ export interface NFTMarketplace extends BaseContract {
 
   tokenURI: TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
 
+  totalSupply: TypedContractMethod<[], [bigint], "view">;
+
   transferFrom: TypedContractMethod<
     [from: AddressLike, to: AddressLike, tokenId: BigNumberish],
     [void],
@@ -559,6 +570,9 @@ export interface NFTMarketplace extends BaseContract {
   getFunction(
     nameOrSignature: "tokenURI"
   ): TypedContractMethod<[tokenId: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "totalSupply"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "transferFrom"
   ): TypedContractMethod<
