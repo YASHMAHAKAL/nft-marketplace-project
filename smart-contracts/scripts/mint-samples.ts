@@ -97,18 +97,18 @@ async function main() {
       JSON.stringify(metadata)
     ).toString("base64")}`;
 
-    // 2. Mint the NFT
+    // 2. Mint the NFT and wait for the Transfer event
     const mintTx = await marketplace.mintNFT(tokenURI);
+    console.log(" -> Transaction hash:", mintTx.hash);
+    
     const mintReceipt = await mintTx.wait();
-
-    // Find the tokenId from the transaction events
-    const mintEvent = mintReceipt?.logs.find(
-      (log: any) => log.eventName === "Transfer"
-    );
-    if (!mintEvent || !mintEvent.args) {
-      throw new Error("Minting failed, Transfer event not found.");
+    if (!mintReceipt?.status) {
+      throw new Error("Transaction failed");
     }
-    const tokenId = mintEvent.args.tokenId;
+
+    // Get the last minted token ID
+    const totalSupply = await marketplace.totalSupply();
+    const tokenId = totalSupply - BigInt(1); // Latest token ID
     console.log(` -> NFT minted successfully! Token ID: ${tokenId}`);
 
     // 3. List the NFT for Sale

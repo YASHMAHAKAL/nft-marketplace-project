@@ -11,8 +11,9 @@ import { CONTRACT_ADDRESS } from "../config/contract";
 import NFTMarketplace from '../abi/NFTMarketplace.json';
 
 // --- IMPORTANT: CONFIGURE THESE VALUES ---
-const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi, signer); // Paste the address from your deployment
 const rpcUrl = "http://127.0.0.1:8545/"; // This is the address for your local Hardhat node
+const provider = new ethers.JsonRpcProvider(rpcUrl);
+const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi, provider); // Connect the contract with provider
 
 interface GalleryProps {
   searchQuery: string;
@@ -29,12 +30,13 @@ export function Gallery({ searchQuery }: GalleryProps) {
   // --- NEW: useEffect to fetch data from the smart contract ---
   useEffect(() => {
     const fetchListedNFTs = async () => {
-      const provider = new ethers.JsonRpcProvider(rpcUrl);
-      const contract = new ethers.Contract(contractAddress, NFTMarketplace.abi, provider);
-      
       try {
+        console.log('Fetching NFTs...');
+        console.log('Contract address:', CONTRACT_ADDRESS);
+        
         const fetchedArtworks: Artwork[] = [];
         const totalSupply = await contract.totalSupply();
+        console.log('Total supply:', totalSupply.toString());
 
         for (let i = 0; i < totalSupply; i++) {
           const listing = await contract.listings(i);

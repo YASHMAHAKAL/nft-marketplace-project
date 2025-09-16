@@ -8,8 +8,7 @@ import { CONTRACT_ADDRESS } from "../config/contract";
 // --- NEW: Import contract ABI ---
 import NFTMarketplace from '../abi/NFTMarketplace.json';
 
-// --- IMPORTANT: UPDATE THIS ADDRESS ---
-const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi, signer);
+
 
 export interface Artwork {
   id: string; // Token ID
@@ -37,7 +36,7 @@ export function ArtworkCard({ artwork }: ArtworkCardProps) {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, NFTMarketplace.abi, signer);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi);
 
       const transaction = await contract.purchaseNFT(artwork.id, {
         value: ethers.parseEther(artwork.price), // Convert price from ETH to Wei
