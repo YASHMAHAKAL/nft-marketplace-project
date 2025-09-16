@@ -33,16 +33,39 @@ export function ArtworkCard({ artwork }: ArtworkCardProps) {
       alert("Please install MetaMask to transact.");
       return;
     }
+
+    // Ask for confirmation before proceeding
+    const confirmPurchase = window.confirm(
+      `Are you sure you want to purchase "${artwork.title}" for ${artwork.price} ETH?`
+    );
+    
+    if (!confirmPurchase) return;
+
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
+      // Request account access
+      await provider.send("eth_requestAccounts", []);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi);
+      
+      console.log("Connected with address:", await signer.getAddress());
+      
+      const contract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        NFTMarketplace.abi,
+        signer // Connect with signer for transactions
+      );
 
+      console.log(`Attempting to purchase NFT #${artwork.id} for ${artwork.price} ETH`);
+      
       const transaction = await contract.purchaseNFT(artwork.id, {
         value: ethers.parseEther(artwork.price), // Convert price from ETH to Wei
       });
 
-      await transaction.wait();
+      console.log("Transaction sent:", transaction.hash);
+      
+      const receipt = await transaction.wait();
+      console.log("Transaction confirmed:", receipt);
+      
       alert("Purchase successful! The NFT is now yours.");
       window.location.reload(); // Refresh the page to update ownership
 
