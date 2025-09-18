@@ -1,20 +1,76 @@
 const express = require('express');
 const cors = require('cors');
-const { Pool } = require('pg');
 const { ethers } = require('ethers');
 const jwt = require('jsonwebtoken');
 const { randomBytes } = require('crypto');
+const pool = require('./db');
 
 const app = express();
 const port = 3001;
-const JWT_SECRET = 'your-super-secret-key-that-should-be-in-an-env-file'; // For production, use an environment variable
+const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key'; // Use env var in production
 
-// --- Database Connection & Setup ---
-const pool = new Pool({ /* ... your db config ... */ });
-const createUsersTable = async () => { /* ... same as before ... */ };
+// Import routes
+const mlRoutes = require('./ml-routes-mock'); // Using mock routes for now
 
-app.use(cors());
+// Configure CORS
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3002', 'http://127.0.0.1:3000', 'http://127.0.0.1:3002'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
 app.use(express.json());
+
+// Database temporarily disabled for testing
+// Test database connection
+// pool.query('SELECT NOW()', (err, res) => {
+//   if (err) {
+//     console.error('Error connecting to the database:', err);
+//   } else {
+//     console.log('Database connected successfully');
+//   }
+// });
+
+// Create necessary tables
+const setupDatabase = async () => {
+  try {
+    // Create user_preferences table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_preferences (
+        id SERIAL PRIMARY KEY,
+        wallet_address VARCHAR(42) NOT NULL,
+        token_id VARCHAR(255) NOT NULL,
+        interaction_type VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(wallet_address, token_id)
+      );
+    `);
+
+    // Create transactions table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS transactions (
+        id SERIAL PRIMARY KEY,
+        token_id VARCHAR(255) NOT NULL,
+        buyer_address VARCHAR(42),
+        seller_address VARCHAR(42),
+        price NUMERIC,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log('Database tables created successfully');
+  } catch (error) {
+    console.error('Error setting up database:', error);
+  }
+};
+
+// Mount ML routes
+app.use('/ml', mlRoutes);
+
+// Database initialization temporarily disabled
+// Initialize database
+// setupDatabase();
 
 // --- In-memory store for nonces ---
 const userNonces = {};
@@ -87,5 +143,4 @@ app.get('/users/me', authenticateToken, async (req, res) => {
 
 app.listen(port, () => {
     console.log(`🚀 API Gateway listening on http://localhost:${port}`);
-    createUsersTable();
 });

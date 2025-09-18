@@ -41,7 +41,25 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
         {/* Left side remains unchanged */}
         <div className="flex items-center gap-12">
-            {/* ... (logo and nav links) ... */}
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            Ancient Treasures
+          </h1>
+          
+          <nav className="hidden md:flex items-center gap-8">
+            <a href="/" className="text-zinc-300 hover:text-white transition-colors">
+              Gallery
+            </a>
+            <a href="/favorites" className="text-zinc-300 hover:text-white transition-colors flex items-center gap-2">
+              <span>❤️</span>
+              Favorites
+            </a>
+            <button 
+              onClick={onMintClick}
+              className="text-zinc-300 hover:text-white transition-colors"
+            >
+              Mint NFT
+            </button>
+          </nav>
         </div>
 
         <div className="flex items-center gap-4">

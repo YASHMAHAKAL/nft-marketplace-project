@@ -1,10 +1,14 @@
 // frontend/src/components/Gallery.tsx
 
 import { useState, useMemo, useEffect } from "react";
-import { ArtworkCard, type Artwork } from "./ArtworkCard";
+import { ArtworkCard } from "./ArtworkCard";
+import type { Artwork } from "../types/artwork";
+import React from "react";
 import { ArtworkFilters } from "./ArtworkFilters";
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS } from "../config/contract";
+import { mlService } from "../services/ml-service";
+import { useAccount } from "../hooks/useAccount";
 
 
 // --- NEW: Import contract ABI -----
@@ -20,22 +24,26 @@ interface GalleryProps {
 }
 
 export function Gallery({ searchQuery }: GalleryProps) {
-  // --- NEW: State for artworks and loading status ---
+  const { account, isLoading: isAccountLoading } = useAccount();
   const [allArtworks, setAllArtworks] = useState<Artwork[]>([]);
+  const [recommendedArtworks, setRecommendedArtworks] = useState<Artwork[]>([]);
+  const [favoriteArtworks, setFavoriteArtworks] = useState<Artwork[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
   const [selectedType, setSelectedType] = useState('All');
   const [selectedPeriod, setSelectedPeriod] = useState('All');
 
-  // --- NEW: useEffect to fetch data from the smart contract ---
   useEffect(() => {
-    const fetchListedNFTs = async () => {
+    const fetchNFTsAndRecommendations = async () => {
       try {
-        console.log('Fetching NFTs...');
-        console.log('Contract address:', CONTRACT_ADDRESS);
+        setIsLoading(true);
+        console.log('Fetching NFTs and recommendations...');
         
-        const fetchedArtworks: Artwork[] = [];
+        // Fetch NFTs from smart contract
         const totalSupply = await contract.totalSupply();
+        const fetchedArtworks: Artwork[] = [];
+        
+        // Reset recommendations when account changes
+        setRecommendedArtworks([]);
         console.log('Total supply:', totalSupply.toString());
 
         for (let i = 0; i < totalSupply; i++) {
@@ -66,6 +74,35 @@ export function Gallery({ searchQuery }: GalleryProps) {
           }
         }
         setAllArtworks(fetchedArtworks);
+
+        // If user is connected, fetch recommendations and favorites
+        if (account) {
+          try {
+            console.log('Fetching recommendations for account:', account);
+            const recommendations = await mlService.getRecommendations(account);
+            console.log('Received recommendations:', recommendations);
+            const recommendedIds = recommendations.map(rec => rec.tokenId.toString());
+            console.log('Recommendation IDs:', recommendedIds);
+            const recommendedArtworksList = fetchedArtworks.filter(artwork => 
+              recommendedIds.includes(artwork.id)
+            );
+            console.log('Matched artworks:', recommendedArtworksList);
+            setRecommendedArtworks(recommendedArtworksList);
+
+            // Fetch favorites
+            const favorites = await mlService.getFavorites(account);
+            console.log('Received favorites:', favorites);
+            const favoriteIds = favorites.map(fav => fav.tokenId.toString());
+            const favoriteArtworksList = fetchedArtworks.filter(artwork => 
+              favoriteIds.includes(artwork.id)
+            );
+            console.log('Matched favorite artworks:', favoriteArtworksList);
+            setFavoriteArtworks(favoriteArtworksList);
+          } catch (error) {
+            console.error("Failed to fetch recommendations and favorites:", error);
+          }
+        }
+
       } catch (error) {
         console.error("Failed to fetch NFTs:", error);
       } finally {
@@ -73,8 +110,8 @@ export function Gallery({ searchQuery }: GalleryProps) {
       }
     };
 
-    fetchListedNFTs();
-  }, []); // Empty dependency array means this runs once on component mount
+    fetchNFTsAndRecommendations();
+  }, [account]); // Re-run when account changes
 
   const filteredArtworks = useMemo(() => {
     return allArtworks.filter((artwork) => {
@@ -111,8 +148,7 @@ export function Gallery({ searchQuery }: GalleryProps) {
           />
         </div>
         
-        {/* --- NEW: Conditional rendering for loading state --- */}
-        {isLoading ? (
+        {isLoading || isAccountLoading ? (
             <div className="text-center py-24">
                 <h3 className="text-xl text-zinc-400 font-light tracking-widest">Loading Treasures...</h3>
             </div>
@@ -122,10 +158,49 @@ export function Gallery({ searchQuery }: GalleryProps) {
             <p className="text-zinc-400">Your collection will appear here once minted.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredArtworks.map((artwork) => (
-              <ArtworkCard key={artwork.id} artwork={artwork} />
-            ))}
+          <div className="space-y-16">
+            {/* Favorites Section */}
+            {account && favoriteArtworks.length > 0 && (
+              <div>
+                <h3 className="text-3xl text-white mb-8 font-light flex items-center">
+                  <span className="mr-3">❤️</span>
+                  Your Favorites
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {favoriteArtworks.map((artwork) => (
+                    <ArtworkCard key={artwork.id} artwork={artwork} isFavorite />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recommended Artworks Section */}
+            {account && (
+              <div>
+                <h3 className="text-3xl text-white mb-8 font-light">Recommended for You</h3>
+                {recommendedArtworks.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {recommendedArtworks.map((artwork) => (
+                      <ArtworkCard key={artwork.id} artwork={artwork} isRecommended />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-zinc-400 text-center py-8">
+                    No recommendations available yet. Start interacting with artworks to get personalized suggestions!
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* All Artworks Section */}
+            <div>
+              <h3 className="text-3xl text-white mb-8 font-light">All Artifacts</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredArtworks.map((artwork) => (
+                  <ArtworkCard key={artwork.id} artwork={artwork} />
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
