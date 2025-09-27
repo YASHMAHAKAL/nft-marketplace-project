@@ -1,23 +1,20 @@
-import { useState, useEffect } from 'react';
+
+
+import React, { useState, useEffect } from 'react';
+import { useWallet } from '../contexts/WalletContext';
 import { ArtworkCard } from './ArtworkCard';
-import { useAccount } from '../hooks/useAccount';
 import { mlService } from '../services/ml-service';
 import type { Artwork } from '../types/artwork';
-import { ethers } from 'ethers';
-import { CONTRACT_ADDRESS } from '../config/contract';
-import NFTMarketplace from '../abi/NFTMarketplace.json';
 
-const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
-const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi, provider);
-
-export function Favorites() {
-  const { account, isLoading: isAccountLoading } = useAccount();
+export default function Favorites() {
+  const { account, isConnected, isLoading: walletLoading, connectWallet } = useWallet();
   const [favoriteArtworks, setFavoriteArtworks] = useState<Artwork[]>([]);
   const [allArtworks, setAllArtworks] = useState<Artwork[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch all NFTs and user favorites
   useEffect(() => {
-    const fetchFavoritesData = async () => {
+    const fetchFavorites = async () => {
       if (!account) {
         setIsLoading(false);
         return;
@@ -26,9 +23,16 @@ export function Favorites() {
       try {
         setIsLoading(true);
 
-        // First, fetch all NFTs
-        const totalSupply = await contract.totalSupply();
+        // First fetch all NFTs to match against favorites
+        const { ethers } = await import('ethers');
+        const { CONTRACT_ADDRESS } = await import('../config/contract');
+        const NFTMarketplace = await import('../abi/NFTMarketplace.json');
+        
+        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi, provider);
+
         const fetchedArtworks: Artwork[] = [];
+        const totalSupply = await contract.totalSupply();
 
         for (let i = 0; i < totalSupply; i++) {
           const listing = await contract.listings(i);
@@ -59,10 +63,8 @@ export function Favorites() {
 
         setAllArtworks(fetchedArtworks);
 
-        // Now fetch favorites
+        // Fetch user favorites
         const favorites = await mlService.getFavorites(account);
-        console.log('Fetched favorites:', favorites);
-        
         const favoriteIds = favorites.map(fav => fav.tokenId.toString());
         const favoriteArtworksList = fetchedArtworks.filter(artwork => 
           favoriteIds.includes(artwork.id)
@@ -70,72 +72,86 @@ export function Favorites() {
         
         setFavoriteArtworks(favoriteArtworksList);
       } catch (error) {
-        console.error('Error fetching favorites:', error);
+        console.error('Failed to fetch favorites:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchFavoritesData();
+    fetchFavorites();
   }, [account]);
 
-  if (isAccountLoading || isLoading) {
+  if (walletLoading) {
     return (
-      <div className="min-h-screen bg-zinc-950 pt-24">
-        <div className="container mx-auto px-6">
-          <div className="text-center py-24">
-            <h3 className="text-xl text-zinc-400 font-light tracking-widest">Loading Favorites...</h3>
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center min-h-[50vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold-500"></div>
         </div>
       </div>
     );
   }
 
-  if (!account) {
+  if (!isConnected) {
     return (
-      <div className="min-h-screen bg-zinc-950 pt-24">
+      <section className="py-24 sm:py-32 bg-zinc-950">
         <div className="container mx-auto px-6">
-          <div className="text-center py-24">
-            <h2 className="text-4xl text-white mb-4 font-light">Connect Your Wallet</h2>
-            <p className="text-zinc-400">Please connect your wallet to view your favorite artworks.</p>
+          <div className="text-center min-h-[50vh] flex flex-col justify-center items-center">
+            <h2 className="text-4xl font-light text-white mb-6">Connect Your Wallet</h2>
+            <p className="text-lg text-zinc-400 mb-8 max-w-md">
+              Please connect your MetaMask wallet to view your favorite artworks from our ancient collection
+            </p>
+            <button
+              onClick={connectWallet}
+              className="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              Connect Wallet
+            </button>
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 pt-24">
+    <section className="py-24 sm:py-32 bg-zinc-950">
       <div className="container mx-auto px-6">
-        <div className="max-w-3xl mx-auto text-center mb-20">
-          <h1 className="text-5xl md:text-6xl font-light tracking-tight text-white mb-4 flex items-center justify-center">
-            <span className="mr-4">❤️</span>
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <h1 className="text-5xl md:text-6xl font-light tracking-tight text-white mb-4">
             Your Favorites
           </h1>
           <p className="text-lg text-zinc-400 leading-relaxed">
-            Your curated collection of favorite artworks
+            Curated collection of your most treasured ancient artifacts
           </p>
         </div>
 
-        {favoriteArtworks.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
+            <h3 className="text-xl text-zinc-400 font-light tracking-widest">Loading your treasures...</h3>
+          </div>
+        ) : favoriteArtworks.length === 0 ? (
           <div className="text-center py-24">
-            <div className="text-6xl mb-6">💔</div>
+            <div className="mb-8">
+              <svg className="w-24 h-24 text-zinc-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
             <h3 className="text-2xl text-white mb-4 font-light">No Favorites Yet</h3>
-            <p className="text-zinc-400 mb-8">
-              Start exploring the gallery and click the heart icon on artworks you love!
+            <p className="text-zinc-400 mb-8 max-w-md mx-auto">
+              Start building your collection by clicking the heart icon on artworks that capture your imagination
             </p>
             <a 
-              href="/gallery" 
-              className="inline-block bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-lg transition-colors"
+              href="/"
+              className="inline-block px-6 py-3 bg-amber-600 hover:bg-amber-700 text-black font-semibold rounded-lg transition-colors"
             >
               Explore Gallery
             </a>
           </div>
         ) : (
-          <>
-            <div className="mb-8">
-              <p className="text-zinc-400 text-center">
-                {favoriteArtworks.length} favorite{favoriteArtworks.length !== 1 ? 's' : ''} found
+          <div className="space-y-8">
+            <div className="text-center">
+              <p className="text-zinc-400">
+                {favoriteArtworks.length} treasured artifact{favoriteArtworks.length !== 1 ? 's' : ''}
               </p>
             </div>
             
@@ -144,9 +160,9 @@ export function Favorites() {
                 <ArtworkCard key={artwork.id} artwork={artwork} isFavorite />
               ))}
             </div>
-          </>
+          </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

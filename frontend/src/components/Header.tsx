@@ -1,36 +1,18 @@
 // frontend/src/components/Header.tsx
 
 import { Search, Menu } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { ethers } from 'ethers';
-import { useSelector, useDispatch } from 'react-redux';
-import { setAccount, RootState } from '../store';
+import { useWallet } from '../contexts/WalletContext';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
-  onMintClick: () => void; // --- NEW: Prop to open the mint modal ---
+  onMintClick: () => void;
 }
 
 export function Header({ onSearch, onMintClick }: HeaderProps) {
-  const dispatch = useDispatch();
-  const account = useSelector((state: RootState) => state.wallet.account);
-
-  const connectWallet = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = await provider.getSigner();
-        const address = await signer.getAddress();
-        dispatch(setAccount(address));
-      } catch (error) {
-        console.error("Error connecting wallet:", error);
-      }
-    } else {
-      alert("Please install MetaMask!");
-    }
-  };
+  const { account, isConnected, isLoading, connectWallet } = useWallet();
 
   const formatAddress = (address: string) => {
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
@@ -39,20 +21,21 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full bg-black/30 backdrop-blur-lg border-b border-white/10">
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Left side remains unchanged */}
         <div className="flex items-center gap-12">
-          <h1 className="text-2xl font-bold tracking-tight text-white">
-            Ancient Treasures
-          </h1>
+          <Link to="/">
+            <h1 className="text-2xl font-bold tracking-tight text-white hover:text-amber-400 transition-colors">
+              Ancient Treasures
+            </h1>
+          </Link>
           
           <nav className="hidden md:flex items-center gap-8">
-            <a href="/" className="text-zinc-300 hover:text-white transition-colors">
+            <Link to="/" className="text-zinc-300 hover:text-white transition-colors">
               Gallery
-            </a>
-            <a href="/favorites" className="text-zinc-300 hover:text-white transition-colors flex items-center gap-2">
+            </Link>
+            <Link to="/favorites" className="text-zinc-300 hover:text-white transition-colors flex items-center gap-2">
               <span>❤️</span>
               Favorites
-            </a>
+            </Link>
             <button 
               onClick={onMintClick}
               className="text-zinc-300 hover:text-white transition-colors"
@@ -72,10 +55,13 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
             />
           </div>
 
-          {account ? (
+          {isConnected && account ? (
             <div className="flex items-center gap-2">
-              {/* --- NEW: "Create" Button --- */}
-              <Button onClick={onMintClick} variant="outline" className="rounded-full bg-white/10 border-white/20 hover:bg-white/20">
+              <Button 
+                onClick={onMintClick} 
+                variant="outline" 
+                className="rounded-full bg-white/10 border-white/20 hover:bg-white/20"
+              >
                 Create
               </Button>
               <span className="text-sm font-mono text-zinc-300 bg-white/5 px-4 py-2 rounded-full border border-white/10">
@@ -83,8 +69,12 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
               </span>
             </div>
           ) : (
-            <Button onClick={connectWallet} className="rounded-full bg-primary/90 text-background font-semibold hover:bg-primary">
-              Connect Wallet
+            <Button 
+              onClick={connectWallet} 
+              disabled={isLoading}
+              className="rounded-full bg-primary/90 text-background font-semibold hover:bg-primary disabled:opacity-50"
+            >
+              {isLoading ? 'Connecting...' : 'Connect Wallet'}
             </Button>
           )}
 
