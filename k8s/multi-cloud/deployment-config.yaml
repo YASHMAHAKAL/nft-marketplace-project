@@ -1,0 +1,380 @@
+# Multi-Cloud Deployment Configuration
+# AWS EKS Primary Cluster
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: multi-cloud-config
+  namespace: default
+data:
+  aws-config.yaml: |
+    cloud: aws
+    region: us-east-1
+    cluster_name: nft-marketplace-primary
+    node_groups:
+      - name: api-gateway-nodes
+        instance_type: t3.medium
+        desired_capacity: 3
+        max_capacity: 20
+        min_capacity: 2
+        labels:
+          workload: api-gateway
+      - name: ml-nodes
+        instance_type: c5.large
+        desired_capacity: 2
+        max_capacity: 10
+        min_capacity: 1
+        labels:
+          workload: ml-service
+        taints:
+          - key: ml-workload
+            value: "true"
+            effect: NoSchedule
+    storage:
+      ebs_csi_driver: enabled
+      storage_classes:
+        - name: fast-ssd
+          type: gp3
+          iops: 3000
+    networking:
+      vpc_cidr: "10.0.0.0/16"
+      load_balancer_type: nlb
+      ingress_controller: aws-load-balancer-controller
+    monitoring:
+      cloudwatch: enabled
+      container_insights: enabled
+      prometheus_retention: 30d
+
+  azure-config.yaml: |
+    cloud: azure
+    region: eastus
+    cluster_name: nft-marketplace-secondary
+    node_pools:
+      - name: apinodes
+        vm_size: Standard_D2s_v3
+        node_count: 3
+        max_count: 15
+        min_count: 2
+        labels:
+          workload: api-gateway
+      - name: mlnodes
+        vm_size: Standard_D4s_v3
+        node_count: 2
+        max_count: 8
+        min_count: 1
+        labels:
+          workload: ml-service
+    storage:
+      csi_driver: enabled
+      storage_classes:
+        - name: fast-ssd
+          type: Premium_LRS
+    networking:
+      vnet_cidr: "10.1.0.0/16"
+      load_balancer_sku: standard
+      ingress_controller: application-gateway
+    monitoring:
+      azure_monitor: enabled
+      log_analytics_retention: 30
+
+---
+# Cross-Cloud Service Discovery
+apiVersion: v1
+kind: Service
+metadata:
+  name: cross-cloud-dns
+  namespace: default
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: nft-marketplace.global
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+spec:
+  type: LoadBalancer
+  selector:
+    app: api-gateway
+  ports:
+    - port: 80
+      targetPort: 3005
+      name: http
+    - port: 443
+      targetPort: 3005
+      name: https
+
+---
+# Multi-Cloud Ingress with Failover
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: multi-cloud-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/upstream-fail-timeout: "30"
+    nginx.ingress.kubernetes.io/upstream-max-fails: "3"
+    external-dns.alpha.kubernetes.io/target: nft-marketplace-primary.elb.amazonaws.com,nft-marketplace-secondary.eastus.cloudapp.azure.com
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Cloud-Provider: $upstream_addr";
+      more_set_headers "X-Served-By: aws-primary";
+spec:
+  tls:
+  - hosts:
+    - nft-marketplace.global
+    - api.nft-marketplace.global
+    secretName: multi-cloud-tls
+  rules:
+  - host: nft-marketplace.global
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 3000
+  - host: api.nft-marketplace.global
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway-service
+            port:
+              number: 3005
+
+---
+# Global Load Balancer Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: global-lb-config
+  namespace: default
+data:
+  nginx.conf: |
+    upstream aws_backend {
+        server nft-marketplace-primary.elb.amazonaws.com:443 weight=3 max_fails=3 fail_timeout=30s;
+        server nft-marketplace-primary.elb.amazonaws.com:443 weight=3 max_fails=3 fail_timeout=30s backup;
+    }
+    
+    upstream azure_backend {
+        server nft-marketplace-secondary.eastus.cloudapp.azure.com:443 weight=2 max_fails=3 fail_timeout=30s;
+        server nft-marketplace-secondary.eastus.cloudapp.azure.com:443 weight=2 max_fails=3 fail_timeout=30s backup;
+    }
+    
+    upstream global_backend {
+        server aws_backend weight=3 max_fails=2 fail_timeout=30s;
+        server azure_backend weight=2 max_fails=2 fail_timeout=30s backup;
+    }
+    
+    map $request_uri $backend {
+        ~*/api/ml/ azure_backend;  # Route ML requests to Azure
+        default aws_backend;       # Route everything else to AWS
+    }
+    
+    server {
+        listen 80;
+        server_name nft-marketplace.global;
+        return 301 https://$server_name$request_uri;
+    }
+    
+    server {
+        listen 443 ssl http2;
+        server_name nft-marketplace.global;
+        
+        ssl_certificate /etc/ssl/certs/nft-marketplace.crt;
+        ssl_certificate_key /etc/ssl/private/nft-marketplace.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512;
+        
+        location /health-global {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+        
+        location / {
+            proxy_pass http://$backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Cloud-Route $backend;
+            
+            proxy_connect_timeout 10s;
+            proxy_send_timeout 60s;
+            proxy_read_timeout 60s;
+            
+            proxy_next_upstream error timeout http_500 http_502 http_503 http_504;
+            proxy_next_upstream_tries 3;
+            proxy_next_upstream_timeout 30s;
+        }
+        
+        # Special handling for WebSocket connections
+        location /ws {
+            proxy_pass http://aws_backend;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+
+---
+# Cross-Cloud Data Synchronization Job
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cross-cloud-sync
+  namespace: default
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: sync-service
+            image: nft-marketplace/sync-service:latest
+            env:
+            - name: AWS_REGION
+              value: "us-east-1"
+            - name: AZURE_REGION
+              value: "eastus"
+            - name: SYNC_DIRECTION
+              value: "bidirectional"
+            - name: CONFLICT_RESOLUTION
+              value: "latest_timestamp"
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting cross-cloud synchronization..."
+              # Sync user preferences and favorites
+              python /app/sync_user_data.py
+              # Sync NFT metadata cache
+              python /app/sync_nft_cache.py
+              # Sync ML model artifacts
+              python /app/sync_ml_models.py
+              echo "Synchronization completed"
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+          restartPolicy: OnFailure
+          
+---
+# Multi-Cloud Monitoring Dashboard
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: multi-cloud-dashboard
+  namespace: monitoring
+data:
+  multi-cloud.json: |
+    {
+      "dashboard": {
+        "title": "Multi-Cloud NFT Marketplace",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Cross-Cloud Request Distribution",
+            "type": "piechart",
+            "targets": [
+              {
+                "expr": "sum by (cloud_provider) (rate(http_requests_total[5m]))",
+                "legendFormat": "{{cloud_provider}}"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Global Response Times",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, cloud_provider))",
+                "legendFormat": "{{cloud_provider}} - 95th percentile"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "Cross-Cloud Failover Events",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(increase(nginx_upstream_response_codes{code=\"502\"}[1h]))",
+                "legendFormat": "Failovers/hour"
+              }
+            ]
+          },
+          {
+            "id": 4,
+            "title": "Data Sync Status",
+            "type": "table",
+            "targets": [
+              {
+                "expr": "max by (sync_type) (time() - last_sync_timestamp)",
+                "legendFormat": "{{sync_type}}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+---
+# Disaster Recovery Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disaster-recovery-config
+  namespace: default
+data:
+  dr-procedures.yaml: |
+    disaster_recovery:
+      rto: 300  # Recovery Time Objective: 5 minutes
+      rpo: 60   # Recovery Point Objective: 1 minute
+      
+      scenarios:
+        - name: "AWS Region Failure"
+          triggers:
+            - "aws_health_check_failed"
+            - "aws_api_gateway_unavailable > 3m"
+          actions:
+            - "activate_azure_backend"
+            - "redirect_dns_to_azure"
+            - "scale_azure_cluster"
+            - "notify_ops_team"
+            
+        - name: "Azure Region Failure"
+          triggers:
+            - "azure_health_check_failed"
+            - "azure_api_gateway_unavailable > 3m"
+          actions:
+            - "scale_aws_cluster"
+            - "update_load_balancer_weights"
+            - "notify_ops_team"
+            
+        - name: "Database Failure"
+          triggers:
+            - "postgresql_connection_failed"
+            - "database_lag > 5s"
+          actions:
+            - "activate_read_replica"
+            - "switch_to_backup_db"
+            - "enable_cache_only_mode"
+            
+      automation:
+        health_check_interval: 30s
+        failover_timeout: 60s
+        rollback_conditions:
+          - "primary_region_healthy > 5m"
+          - "error_rate < 1%"

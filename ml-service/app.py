@@ -5,9 +5,25 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.ensemble import IsolationForest
 import numpy as np
+import datetime
+import os
 
 app = Flask(__name__)
 CORS(app)
+
+# Health check endpoint
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.datetime.utcnow().isoformat(),
+        'service': 'ml-service',
+        'version': '1.0.0',
+        'model_status': {
+            'recommendation_model': 'loaded',
+            'fraud_detection_model': 'loaded'
+        }
+    }), 200
 
 # --- Recommendation Model ---
 mock_nft_data = [

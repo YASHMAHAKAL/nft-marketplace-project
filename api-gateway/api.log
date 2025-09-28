@@ -102,3 +102,175 @@ Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
 🗄️ [FAVORITES] All stored preferences: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [] ] ]
 Fraud check for tokenId: 4
 Fraud check for tokenId: 5
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [] ] ]
+✅ [FAVORITES] Returning 0 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+🎯 [FAVORITES] Updating preferences for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+✅ [FAVORITES] Added new favorite. Total favorites for 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 : [ '0' ]
+🗄️ [FAVORITES] All stored preferences: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+Returning recommendations: [ { tokenId: 0, similarity: 0.9, confidence: 0.8 } ]
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+✅ [FAVORITES] Returning 1 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+✅ [FAVORITES] Returning 1 favorites in expected format
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+✅ [FAVORITES] Returning 1 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+Returning recommendations: [ { tokenId: 0, similarity: 0.9, confidence: 0.8 } ]
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+Returning recommendations: [ { tokenId: 0, similarity: 0.9, confidence: 0.8 } ]
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+✅ [FAVORITES] Returning 1 favorites in expected format
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+✅ [FAVORITES] Returning 1 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+🎯 [FAVORITES] Updating preferences for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+✅ [FAVORITES] Added new favorite. Total favorites for 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 : [ '0', '4' ]
+🗄️ [FAVORITES] All stored preferences: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0', '4' ] ] ]
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+Returning recommendations: [
+  { tokenId: 0, similarity: 0.9, confidence: 0.8 },
+  { tokenId: 4, similarity: 0.8, confidence: 0.8500000000000001 }
+]
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0', '4' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0', '4' ] ] ]
+✅ [FAVORITES] Returning 2 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0', '4' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0', '4' ] ] ]
+✅ [FAVORITES] Returning 2 favorites in expected format
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0', '4' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0', '4' ] ] ]
+✅ [FAVORITES] Returning 2 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+Returning recommendations: [
+  { tokenId: 0, similarity: 0.9, confidence: 0.8 },
+  { tokenId: 4, similarity: 0.8, confidence: 0.8500000000000001 }
+]
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+Returning recommendations: [
+  { tokenId: 0, similarity: 0.9, confidence: 0.8 },
+  { tokenId: 4, similarity: 0.8, confidence: 0.8500000000000001 }
+]
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0', '4' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0', '4' ] ] ]
+✅ [FAVORITES] Returning 2 favorites in expected format
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0', '4' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0', '4' ] ] ]
+✅ [FAVORITES] Returning 2 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5

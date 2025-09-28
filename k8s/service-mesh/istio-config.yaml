@@ -1,0 +1,292 @@
+# Istio Gateway for NFT Marketplace
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: nft-marketplace-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - nft-marketplace.local
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: nft-marketplace-tls
+    hosts:
+    - nft-marketplace.local
+
+---
+# Virtual Service for Traffic Routing
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: nft-marketplace-vs
+  namespace: default
+spec:
+  hosts:
+  - nft-marketplace.local
+  gateways:
+  - nft-marketplace-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /api/
+    route:
+    - destination:
+        host: api-gateway-service
+        port:
+          number: 3005
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+    fault:
+      delay:
+        percentage:
+          value: 0.1
+        fixedDelay: 5s
+  - match:
+    - uri:
+        prefix: /ml/
+    route:
+    - destination:
+        host: ml-service-service
+        port:
+          number: 5000
+    timeout: 60s
+    retries:
+      attempts: 2
+      perTryTimeout: 30s
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: frontend-service
+        port:
+          number: 3000
+
+---
+# Destination Rules for Load Balancing and Circuit Breaking
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: api-gateway-dr
+  namespace: default
+spec:
+  host: api-gateway-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        maxRequestsPerConnection: 10
+    circuitBreaker:
+      consecutiveErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+  portLevelSettings:
+  - port:
+      number: 3005
+    connectionPool:
+      tcp:
+        maxConnections: 50
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: ml-service-dr
+  namespace: default
+spec:
+  host: ml-service-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 50
+      http:
+        http1MaxPendingRequests: 25
+        maxRequestsPerConnection: 5
+    circuitBreaker:
+      consecutiveErrors: 5
+      interval: 60s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 30
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+
+---
+# Service Monitor for Istio Metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: istio-proxy-monitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: istiod
+  endpoints:
+  - port: http-monitoring
+    interval: 15s
+    path: /stats/prometheus
+
+---
+# Peer Authentication for mTLS
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: default
+spec:
+  mtls:
+    mode: STRICT
+
+---
+# Authorization Policy for API Security
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: api-gateway-authz
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: api-gateway
+  rules:
+  - to:
+    - operation:
+        methods: ["GET", "POST", "PUT", "DELETE"]
+        paths: ["/api/*"]
+    when:
+    - key: request.headers[user-agent]
+      notValues: ["*bot*", "*crawler*", "*scraper*"]
+  - to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/health"]
+
+---
+# Request Authentication for JWT tokens
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: nft-jwt-auth
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: api-gateway
+  jwtRules:
+  - issuer: "https://nft-marketplace.local"
+    jwksUri: "https://nft-marketplace.local/.well-known/jwks.json"
+    audiences:
+    - "nft-marketplace-api"
+
+---
+# Telemetry Configuration for Enhanced Observability
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: nft-marketplace-metrics
+  namespace: default
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+  - overrides:
+    - match:
+        metric: REQUEST_COUNT
+      tagOverrides:
+        nft_transaction_type:
+          operation: |
+            has(request.url_path) ? (
+              request.url_path | contains("/mint") ? "mint" :
+              request.url_path | contains("/buy") ? "purchase" :
+              request.url_path | contains("/sell") ? "listing" :
+              request.url_path | contains("/favorites") ? "favorite" :
+              "other"
+            ) : "unknown"
+        user_type:
+          operation: |
+            has(request.headers["x-user-type"]) ? request.headers["x-user-type"] : "guest"
+  - overrides:
+    - match:
+        metric: REQUEST_DURATION
+      tagOverrides:
+        response_size_category:
+          operation: |
+            response.total_size < 1024 ? "small" :
+            response.total_size < 10240 ? "medium" :
+            response.total_size < 102400 ? "large" : "xl"
+
+---
+# Envoy Filter for Custom Headers
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: nft-custom-headers
+  namespace: default
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.wasm
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm
+          config:
+            name: "nft_headers"
+            root_id: "nft_headers"
+            vm_config:
+              vm_id: "nft_headers"
+              runtime: "envoy.wasm.runtime.null"
+              code:
+                local:
+                  inline_string: |
+                    const NFT_TRACKING_HEADER = 'x-nft-tracking-id';
+                    const REQUEST_START_TIME = 'x-request-start-time';
+                    
+                    class NftHeadersFilter {
+                      constructor(rootContext) {
+                        this.rootContext = rootContext;
+                      }
+                      
+                      onRequestHeaders() {
+                        const trackingId = Math.random().toString(36).substring(2, 15);
+                        this.setRequestHeader(NFT_TRACKING_HEADER, trackingId);
+                        this.setRequestHeader(REQUEST_START_TIME, Date.now().toString());
+                        return FilterHeadersStatus.Continue;
+                      }
+                      
+                      onResponseHeaders() {
+                        const startTime = this.getRequestHeader(REQUEST_START_TIME);
+                        const processingTime = Date.now() - parseInt(startTime);
+                        this.setResponseHeader('x-processing-time-ms', processingTime.toString());
+                        return FilterHeadersStatus.Continue;
+                      }
+                    }

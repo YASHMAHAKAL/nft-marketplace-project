@@ -1,33 +1,51 @@
-# --- Stage 1: Build Stage ---
-# Use an official lightweight Node.js image
+# Optimized multi-stage build for Node.js API Gateway
 FROM node:18-alpine AS builder
 
-# Set the working directory inside the container
+# Add metadata
+LABEL maintainer="NFT Marketplace Team"
+LABEL description="API Gateway for NFT Marketplace"
+
 WORKDIR /app
 
-# Copy package.json and package-lock.json first to leverage Docker's layer caching
+# Copy package files first for better caching
 COPY package*.json ./
 
-# Install project dependencies
-RUN npm install
+# Install dependencies with optimizations
+RUN npm ci --only=production && \
+    npm cache clean --force
 
-# Copy the rest of the application source code
-COPY . .
+# Production stage
+FROM node:18-alpine AS production
 
-# --- Stage 2: Production Stage ---
-# Start from a fresh, clean base image for a smaller final size
-FROM node:18-alpine
+# Install security updates
+RUN apk update && apk upgrade && \
+    apk add --no-cache dumb-init && \
+    rm -rf /var/cache/apk/*
 
 WORKDIR /app
 
-# Copy the installed dependencies from the 'builder' stage
-COPY --from=builder /app/node_modules ./node_modules
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs
 
-# Copy the application code from the 'builder' stage
-COPY --from=builder /app .
+# Copy dependencies from builder
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 
-# Let Docker know that the container listens on this port
+# Copy application files
+COPY --chown=nodejs:nodejs . .
+
+# Switch to non-root user
+USER nodejs
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node healthcheck.js || exit 1
+
+# Expose port
 EXPOSE 3001
 
-# The command that will be run when the container starts
+# Use dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
 CMD ["node", "index.js"]

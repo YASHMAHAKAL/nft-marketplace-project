@@ -68,6 +68,17 @@ const setupDatabase = async () => {
 // Mount ML routes
 app.use('/ml', mlRoutes);
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    service: 'api-gateway',
+    version: '1.0.0'
+  });
+});
+
 // Database initialization temporarily disabled
 // Initialize database
 // setupDatabase();
