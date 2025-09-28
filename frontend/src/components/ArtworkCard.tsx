@@ -1,6 +1,6 @@
 // frontend/src/components/ArtworkCard.tsx
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { ethers } from 'ethers';
@@ -11,8 +11,6 @@ import { Heart as HeartIcon } from 'lucide-react';
 
 // --- NEW: Import contract ABI ---
 import NFTMarketplace from '../abi/NFTMarketplace.json';
-
-
 
 export interface Artwork {
   id: string; // Token ID
@@ -30,17 +28,24 @@ interface ArtworkCardProps {
   artwork: Artwork;
   isRecommended?: boolean;
   isFavorite?: boolean;
+  onFavoriteChange?: (artworkId: string, isFavorite: boolean) => void;
 }
 
-export function ArtworkCard({ artwork, isRecommended = false, isFavorite = false }: ArtworkCardProps) {
+export function ArtworkCard({ artwork, isRecommended = false, isFavorite = false, onFavoriteChange }: ArtworkCardProps) {
   const { account } = useAccount();
+  const [isLiked, setIsLiked] = useState(isFavorite);
+  const [isLiking, setIsLiking] = useState(false);
+
+  useEffect(() => {
+    setIsLiked(isFavorite);
+  }, [isFavorite]);
 
   useEffect(() => {
     // Log view interaction when the artwork is rendered and user is connected
     const logView = async () => {
       if (account) {
         try {
-          await mlService.updateUserPreferences(account, artwork.id);
+          await mlService.logView(account, artwork.id);
           console.log('Logged view for artwork:', artwork.id);
         } catch (error) {
           console.error('Failed to log view:', error);
@@ -145,24 +150,49 @@ export function ArtworkCard({ artwork, isRecommended = false, isFavorite = false
             <Button
               variant="ghost"
               size="icon"
-              className="ml-2 text-zinc-400 hover:text-amber-400 transition-colors"
+              disabled={isLiking}
+              className={`ml-2 transition-all duration-200 ${
+                isLiked 
+                  ? 'text-red-500 hover:text-red-600 scale-110' 
+                  : 'text-zinc-400 hover:text-red-400'
+              }`}
               onClick={async () => {
                 if (!account) {
                   alert('Please connect your wallet first!');
                   return;
                 }
                 
-                console.log('Adding to favorites - Account:', account, 'TokenID:', artwork.id);
+                setIsLiking(true);
+                console.log('Toggling favorite - Account:', account, 'TokenID:', artwork.id);
+                
                 try {
                   await mlService.updateUserPreferences(account, artwork.id);
-                  alert(`Added "${artwork.title}" to favorites! Visit the Favorites page to see all your liked items.`);
+                  const newIsLiked = !isLiked;
+                  setIsLiked(newIsLiked);
+                  
+                  // Notify parent component about the favorite change
+                  if (onFavoriteChange) {
+                    onFavoriteChange(artwork.id, newIsLiked);
+                  }
+                  
+                  if (newIsLiked) {
+                    console.log(`✅ Added "${artwork.title}" to favorites!`);
+                  } else {
+                    console.log(`ℹ️ "${artwork.title}" was already in favorites`);
+                  }
                 } catch (error) {
-                  console.error('Error adding to favorites:', error);
-                  alert('Failed to add to favorites. Please try again.');
+                  console.error('Error updating favorites:', error);
+                  alert('Failed to update favorites. Please try again.');
+                } finally {
+                  setIsLiking(false);
                 }
               }}
             >
-              <HeartIcon className="h-5 w-5" />
+              <HeartIcon 
+                className={`h-5 w-5 transition-all duration-200 ${
+                  isLiked ? 'fill-current scale-110' : ''
+                } ${isLiking ? 'animate-pulse' : ''}`} 
+              />
             </Button>
           )}
         </div>

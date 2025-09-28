@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { MLServiceInterface, FraudCheckResult } from '../types/ml-service';
 import type { NFTRecommendation } from '../types/recommendation';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3005';
 
 class MLServiceImpl implements MLServiceInterface {
   async getRecommendations(walletAddress: string): Promise<NFTRecommendation[]> {
@@ -74,6 +74,24 @@ class MLServiceImpl implements MLServiceInterface {
     } catch (error: any) {
       console.error('ML Service: Failed to fetch favorites:', error.message);
       return [];
+    }
+  }
+
+  async logView(walletAddress: string, tokenId: string): Promise<void> {
+    try {
+      console.log('ML Service: Logging view:', { walletAddress, tokenId });
+      
+      await axios.post(`${API_URL}/ml/views`, {
+        walletAddress,
+        tokenId
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+    } catch (error: any) {
+      console.error('ML Service: Failed to log view:', error.message);
     }
   }
 }

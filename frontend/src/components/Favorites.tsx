@@ -12,6 +12,16 @@ export default function Favorites() {
   const [allArtworks, setAllArtworks] = useState<Artwork[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Handle favorite changes from ArtworkCard
+  const handleFavoriteChange = (artworkId: string, isFavorite: boolean) => {
+    if (!isFavorite) {
+      // Remove from favorites
+      setFavoriteArtworks(prev => prev.filter(fav => fav.id !== artworkId));
+    }
+    // Note: We don't add to favorites here since this is the favorites page
+    // Items are added through the main gallery
+  };
+
   // Fetch all NFTs and user favorites
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -157,7 +167,12 @@ export default function Favorites() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {favoriteArtworks.map((artwork) => (
-                <ArtworkCard key={artwork.id} artwork={artwork} isFavorite />
+                <ArtworkCard 
+                  key={artwork.id} 
+                  artwork={artwork} 
+                  isFavorite 
+                  onFavoriteChange={handleFavoriteChange}
+                />
               ))}
             </div>
           </div>

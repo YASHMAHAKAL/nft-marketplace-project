@@ -6,7 +6,7 @@ const { randomBytes } = require('crypto');
 const pool = require('./db');
 
 const app = express();
-const port = 3001;
+const port = 3005; // Changed from 3001 to avoid conflicts
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key'; // Use env var in production
 
 // Import routes
