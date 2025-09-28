@@ -1,0 +1,104 @@
+nohup: ignoring input
+🚀 API Gateway listening on http://localhost:3005
+🔍 [FAVORITES] Fetching favorites for: 0xCLEANTEST
+📋 [FAVORITES] Found favorites: [] for address: 0xCLEANTEST
+🗄️ [FAVORITES] All stored data: []
+✅ [FAVORITES] Returning 0 favorites in expected format
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: []
+✅ [FAVORITES] Returning 0 favorites in expected format
+🎯 [FAVORITES] Updating preferences for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+✅ [FAVORITES] Added new favorite. Total favorites for 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 : [ '0' ]
+🗄️ [FAVORITES] All stored preferences: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+✅ [FAVORITES] Returning 1 favorites in expected format
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+✅ [FAVORITES] Returning 1 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+Returning recommendations: [ { tokenId: 0, similarity: 0.9, confidence: 0.8 } ]
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+Returning recommendations: [ { tokenId: 0, similarity: 0.9, confidence: 0.8 } ]
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+✅ [FAVORITES] Returning 1 favorites in expected format
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [ '0' ] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '0' ] ] ]
+✅ [FAVORITES] Returning 1 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+🎯 [FAVORITES] Updating preferences for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+🗑️ [FAVORITES] Removed favorite. Total favorites for 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 : []
+🗄️ [FAVORITES] All stored preferences: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [] ] ]
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [] ] ]
+✅ [FAVORITES] Returning 0 favorites in expected format
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [] ] ]
+✅ [FAVORITES] Returning 0 favorites in expected format
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 0
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 2
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 3
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 4
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 5
+Getting recommendations for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🔍 [FAVORITES] Fetching favorites for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+📋 [FAVORITES] Found favorites: [] for address: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955
+🗄️ [FAVORITES] All stored data: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [] ] ]
+✅ [FAVORITES] Returning 0 favorites in expected format
+🎯 [FAVORITES] Updating preferences for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+✅ [FAVORITES] Added new favorite. Total favorites for 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 : [ '1' ]
+🗄️ [FAVORITES] All stored preferences: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [ '1' ] ] ]
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+📊 [VIEWS] Logging view for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+🎯 [FAVORITES] Updating preferences for: 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 tokenId: 1
+🗑️ [FAVORITES] Removed favorite. Total favorites for 0x14dc79964da2c08b23698b3d3cc7ca32193d9955 : []
+🗄️ [FAVORITES] All stored preferences: [ [ '0x14dc79964da2c08b23698b3d3cc7ca32193d9955', [] ] ]
+Fraud check for tokenId: 4
+Fraud check for tokenId: 5

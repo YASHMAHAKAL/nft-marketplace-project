@@ -55,11 +55,15 @@ router.post('/preferences', async (req, res) => {
     
     const preferences = userPreferences.get(walletAddress);
     if (!preferences.includes(tokenId)) {
+      // Add to favorites
       preferences.push(tokenId);
       userPreferences.set(walletAddress, preferences);
       console.log('✅ [FAVORITES] Added new favorite. Total favorites for', walletAddress, ':', preferences);
     } else {
-      console.log('ℹ️ [FAVORITES] Item already in favorites for', walletAddress);
+      // Remove from favorites (toggle behavior)
+      const updatedPreferences = preferences.filter(id => id !== tokenId);
+      userPreferences.set(walletAddress, updatedPreferences);
+      console.log('🗑️ [FAVORITES] Removed favorite. Total favorites for', walletAddress, ':', updatedPreferences);
     }
     
     console.log('🗄️ [FAVORITES] All stored preferences:', Array.from(userPreferences.entries()));
@@ -80,21 +84,33 @@ router.get('/favorites/:walletAddress', async (req, res) => {
     console.log('📋 [FAVORITES] Found favorites:', favorites, 'for address:', walletAddress);
     console.log('🗄️ [FAVORITES] All stored data:', Array.from(userPreferences.entries()));
     
-    // For now, return mock data based on stored preferences
-    const favoriteArtworks = favorites.map(tokenId => ({
-      id: tokenId,
-      title: `Favorite Artwork #${tokenId}`,
-      artist: 'Mock Artist',
-      price: '1.5 ETH',
-      image: `https://picsum.photos/400/400?random=${tokenId}`,
-      description: `A beautiful piece you liked (Token ID: ${tokenId})`
+    // Return favorites in the format expected by the frontend
+    const favoriteData = favorites.map(tokenId => ({
+      tokenId: parseInt(tokenId),
+      likedAt: new Date().toISOString()
     }));
     
-    console.log('✅ [FAVORITES] Returning', favoriteArtworks.length, 'favorite artworks');
-    res.json({ favorites: favoriteArtworks });
+    console.log('✅ [FAVORITES] Returning', favoriteData.length, 'favorites in expected format');
+    res.json(favoriteData);
   } catch (error) {
     console.error('❌ [FAVORITES] Error fetching favorites:', error);
     res.status(500).json({ error: 'Failed to fetch favorites' });
+  }
+});
+
+// Log view interactions (separate from favorites)
+router.post('/views', async (req, res) => {
+  try {
+    const { walletAddress, tokenId } = req.body;
+    console.log('📊 [VIEWS] Logging view for:', walletAddress, 'tokenId:', tokenId);
+    
+    // TODO: Implement view tracking logic here
+    // This should be separate from favorites and used for analytics/recommendations
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ [VIEWS] Error logging view:', error);
+    res.status(500).json({ error: 'Failed to log view' });
   }
 });
 

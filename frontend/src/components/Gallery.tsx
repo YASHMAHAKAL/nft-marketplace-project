@@ -32,6 +32,23 @@ export function Gallery({ searchQuery }: GalleryProps) {
   const [selectedType, setSelectedType] = useState('All');
   const [selectedPeriod, setSelectedPeriod] = useState('All');
 
+  // Handle favorite changes from ArtworkCard
+  const handleFavoriteChange = (artworkId: string, isFavorite: boolean) => {
+    const artwork = allArtworks.find(art => art.id === artworkId);
+    if (!artwork) return;
+
+    if (isFavorite) {
+      // Add to favorites if not already there
+      setFavoriteArtworks(prev => {
+        if (prev.some(fav => fav.id === artworkId)) return prev;
+        return [...prev, artwork];
+      });
+    } else {
+      // Remove from favorites
+      setFavoriteArtworks(prev => prev.filter(fav => fav.id !== artworkId));
+    }
+  };
+
   useEffect(() => {
     const fetchNFTsAndRecommendations = async () => {
       try {
@@ -168,7 +185,12 @@ export function Gallery({ searchQuery }: GalleryProps) {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {favoriteArtworks.map((artwork) => (
-                    <ArtworkCard key={artwork.id} artwork={artwork} isFavorite />
+                    <ArtworkCard 
+                      key={artwork.id} 
+                      artwork={artwork} 
+                      isFavorite 
+                      onFavoriteChange={handleFavoriteChange}
+                    />
                   ))}
                 </div>
               </div>
@@ -180,9 +202,19 @@ export function Gallery({ searchQuery }: GalleryProps) {
                 <h3 className="text-3xl text-white mb-8 font-light">Recommended for You</h3>
                 {recommendedArtworks.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {recommendedArtworks.map((artwork) => (
-                      <ArtworkCard key={artwork.id} artwork={artwork} isRecommended />
-                    ))}
+                    {recommendedArtworks.map((artwork) => {
+                      const isFavorite = favoriteArtworks.some(fav => fav.id === artwork.id);
+                      
+                      return (
+                        <ArtworkCard 
+                          key={artwork.id} 
+                          artwork={artwork} 
+                          isRecommended 
+                          isFavorite={isFavorite}
+                          onFavoriteChange={handleFavoriteChange}
+                        />
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-zinc-400 text-center py-8">
@@ -196,9 +228,20 @@ export function Gallery({ searchQuery }: GalleryProps) {
             <div>
               <h3 className="text-3xl text-white mb-8 font-light">All Artifacts</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredArtworks.map((artwork) => (
-                  <ArtworkCard key={artwork.id} artwork={artwork} />
-                ))}
+                {filteredArtworks.map((artwork) => {
+                  const isRecommended = recommendedArtworks.some(rec => rec.id === artwork.id);
+                  const isFavorite = favoriteArtworks.some(fav => fav.id === artwork.id);
+                  
+                  return (
+                    <ArtworkCard 
+                      key={artwork.id} 
+                      artwork={artwork} 
+                      isRecommended={isRecommended}
+                      isFavorite={isFavorite}
+                      onFavoriteChange={handleFavoriteChange}
+                    />
+                  );
+                })}
               </div>
             </div>
           </div>
