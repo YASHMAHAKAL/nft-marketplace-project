@@ -1,0 +1,336 @@
+# AI-Powered Predictive Scaling Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: predictive-scaling-config
+  namespace: default
+data:
+  config.yaml: |
+    # Predictive Scaling Configuration for NFT Marketplace
+    scaling:
+      enabled: true
+      prediction_window: "1h"
+      scale_up_threshold: 0.7
+      scale_down_threshold: 0.3
+      min_replicas: 2
+      max_replicas: 50
+      
+    models:
+      nft_demand_predictor:
+        type: "time_series"
+        features:
+          - "historical_transactions"
+          - "gas_price_trends"
+          - "user_activity_patterns"
+          - "market_sentiment"
+          - "day_of_week"
+          - "hour_of_day"
+        training_window: "7d"
+        retrain_interval: "6h"
+        
+      ml_service_load_predictor:
+        type: "regression"
+        features:
+          - "recommendation_requests"
+          - "model_complexity"
+          - "cache_hit_ratio"
+          - "response_time_trends"
+        training_window: "24h"
+        retrain_interval: "2h"
+        
+    metrics:
+      custom_metrics:
+        - name: "nft_transaction_velocity"
+          query: "rate(nft_transactions_total[5m]) * 60"
+          weight: 0.4
+        - name: "user_engagement_score"
+          query: "avg(user_session_duration_minutes) * count(active_users)"
+          weight: 0.3
+        - name: "ethereum_network_congestion"
+          query: "ethereum_gas_price_gwei / ethereum_gas_price_baseline_gwei"
+          weight: 0.2
+        - name: "ml_model_load"
+          query: "rate(ml_inference_requests_total[5m])"
+          weight: 0.1
+
+---
+# AI Scaling Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-scaler
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-scaler
+  template:
+    metadata:
+      labels:
+        app: ai-scaler
+    spec:
+      serviceAccountName: ai-scaler-sa
+      containers:
+      - name: ai-scaler
+        image: nft-marketplace/ai-scaler:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PROMETHEUS_URL
+          value: "http://prometheus-service.monitoring.svc.cluster.local:9090"
+        - name: KUBERNETES_API_URL
+          value: "https://kubernetes.default.svc.cluster.local"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: PREDICTION_MODEL_PATH
+          value: "/models"
+        - name: SCALING_INTERVAL
+          value: "60s"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: models
+          mountPath: /models
+        - name: predictions
+          mountPath: /predictions
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: predictive-scaling-config
+      - name: models
+        persistentVolumeClaim:
+          claimName: ai-models-pvc
+      - name: predictions
+        persistentVolumeClaim:
+          claimName: predictions-pvc
+
+---
+# Service Account for AI Scaler
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ai-scaler-sa
+  namespace: default
+
+---
+# Cluster Role for Scaling Operations
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ai-scaler-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+- apiGroups: ["custom.metrics.k8s.io"]
+  resources: ["*"]
+  verbs: ["get", "list"]
+
+---
+# Cluster Role Binding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ai-scaler-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ai-scaler-role
+subjects:
+- kind: ServiceAccount
+  name: ai-scaler-sa
+  namespace: default
+
+---
+# PVC for AI Models
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ai-models-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd
+
+---
+# PVC for Predictions Data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: predictions-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: fast-ssd
+
+---
+# Service for AI Scaler
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-scaler-service
+  namespace: default
+spec:
+  selector:
+    app: ai-scaler
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+# Custom HPA with AI Predictions
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway-ai-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-gateway
+  minReplicas: 2
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: External
+    external:
+      metric:
+        name: nft_transaction_velocity
+      target:
+        type: Value
+        value: "100"
+  - type: External
+    external:
+      metric:
+        name: predicted_load_next_hour
+        selector:
+          matchLabels:
+            service: api-gateway
+      target:
+        type: Value
+        value: "0.7"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+      - type: Pods
+        value: 5
+        periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 300
+      - type: Pods
+        value: 2
+        periodSeconds: 300
+      selectPolicy: Min
+
+---
+# ML Service AI-Powered HPA
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ml-service-ai-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ml-service
+  minReplicas: 1
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: External
+    external:
+      metric:
+        name: ml_inference_queue_depth
+      target:
+        type: Value
+        value: "10"
+  - type: External
+    external:
+      metric:
+        name: predicted_ml_load_next_30min
+        selector:
+          matchLabels:
+            service: ml-service
+      target:
+        type: Value
+        value: "0.6"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      policies:
+      - type: Percent
+        value: 200
+        periodSeconds: 120
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 600
+      policies:
+      - type: Percent
+        value: 25
+        periodSeconds: 300
+      selectPolicy: Min
