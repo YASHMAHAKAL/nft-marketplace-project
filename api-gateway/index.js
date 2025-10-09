@@ -6,11 +6,11 @@ const { randomBytes } = require('crypto');
 const pool = require('./db');
 
 const app = express();
-const port = 3005; // Changed from 3001 to avoid conflicts
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key'; // Use env var in production
+const port = 3005;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key';
 
-// Import routes
-const mlRoutes = require('./ml-routes-mock'); // Using mock routes for now
+// Import ML routes 
+const mlRoutes = require('./ml-routes');
 
 // Configure CORS
 app.use(cors({
@@ -22,32 +22,57 @@ app.use(cors({
 
 app.use(express.json());
 
-// Database temporarily disabled for testing
 // Test database connection
-// pool.query('SELECT NOW()', (err, res) => {
-//   if (err) {
-//     console.error('Error connecting to the database:', err);
-//   } else {
-//     console.log('Database connected successfully');
-//   }
-// });
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+  } else {
+    console.log('Database connected successfully');
+  }
+});
 
 // Create necessary tables
 const setupDatabase = async () => {
   try {
-    // Create user_preferences table
+    // Create user_preferences table for favorites
     await pool.query(`
       CREATE TABLE IF NOT EXISTS user_preferences (
         id SERIAL PRIMARY KEY,
         wallet_address VARCHAR(42) NOT NULL,
         token_id VARCHAR(255) NOT NULL,
-        interaction_type VARCHAR(50) NOT NULL,
+        interaction_type VARCHAR(50) NOT NULL DEFAULT 'favorite',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(wallet_address, token_id)
+        UNIQUE(wallet_address, token_id, interaction_type)
+      );
+    `);
+
+    // Create user_views table for analytics  
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_views (
+        id SERIAL PRIMARY KEY,
+        wallet_address VARCHAR(42) NOT NULL,
+        token_id VARCHAR(255) NOT NULL,
+        viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
     // Create transactions table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS transactions (
+        id SERIAL PRIMARY KEY,
+        token_id VARCHAR(255) NOT NULL,
+        buyer_address VARCHAR(42),
+        seller_address VARCHAR(42),
+        price NUMERIC,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log('Database tables created successfully');
+  } catch (error) {
+    console.error('Error setting up database:', error);
+  }
+};
     await pool.query(`
       CREATE TABLE IF NOT EXISTS transactions (
         id SERIAL PRIMARY KEY,
@@ -79,9 +104,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Database initialization temporarily disabled
-// Initialize database
-// setupDatabase();
+// Database initialization
+setupDatabase();
 
 // --- In-memory store for nonces ---
 const userNonces = {};

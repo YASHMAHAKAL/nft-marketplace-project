@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { WalletProvider } from "./contexts/WalletContext";
+import { FavoritesProvider } from "./contexts/FavoritesContext";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import { Gallery } from "./components/Gallery";
@@ -27,24 +28,26 @@ export default function App() {
 
   return (
     <WalletProvider>
-      <Router>
-        <div className="dark min-h-screen bg-zinc-950 text-white">
-          <Header 
-            onSearch={setSearchQuery} 
-            onMintClick={() => setIsMintModalOpen(true)}
-          />
-          <main>
-            <Routes>
-              <Route path="/" element={<HomePage searchQuery={searchQuery} />} />
-              <Route path="/gallery" element={<HomePage searchQuery={searchQuery} />} />
-              <Route path="/favorites" element={<Favorites />} />
-            </Routes>
-          </main>
-          <Footer />
+      <FavoritesProvider>
+        <Router>
+          <div className="dark min-h-screen bg-zinc-950 text-white">
+            <Header 
+              onSearch={setSearchQuery} 
+              onMintClick={() => setIsMintModalOpen(true)}
+            />
+            <main>
+              <Routes>
+                <Route path="/" element={<HomePage searchQuery={searchQuery} />} />
+                <Route path="/gallery" element={<HomePage searchQuery={searchQuery} />} />
+                <Route path="/favorites" element={<Favorites />} />
+              </Routes>
+            </main>
+            <Footer />
 
-          {isMintModalOpen && <MintModal onClose={() => setIsMintModalOpen(false)} />}
-        </div>
-      </Router>
+            {isMintModalOpen && <MintModal onClose={() => setIsMintModalOpen(false)} />}
+          </div>
+        </Router>
+      </FavoritesProvider>
     </WalletProvider>
   );
 }

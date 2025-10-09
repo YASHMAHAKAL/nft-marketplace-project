@@ -7,6 +7,7 @@ import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS } from "../config/contract";
 import { mlService } from "../services/ml-service";
 import { useAccount } from "../hooks/useAccount";
+import { useFavorites } from "../contexts/FavoritesContext";
 import { Heart as HeartIcon } from 'lucide-react';
 
 // --- NEW: Import contract ABI ---
@@ -27,18 +28,14 @@ export interface Artwork {
 interface ArtworkCardProps {
   artwork: Artwork;
   isRecommended?: boolean;
-  isFavorite?: boolean;
-  onFavoriteChange?: (artworkId: string, isFavorite: boolean) => void;
 }
 
-export function ArtworkCard({ artwork, isRecommended = false, isFavorite = false, onFavoriteChange }: ArtworkCardProps) {
+export function ArtworkCard({ artwork, isRecommended = false }: ArtworkCardProps) {
   const { account } = useAccount();
-  const [isLiked, setIsLiked] = useState(isFavorite);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [isLiking, setIsLiking] = useState(false);
 
-  useEffect(() => {
-    setIsLiked(isFavorite);
-  }, [isFavorite]);
+  const artworkIsFavorite = isFavorite(artwork.id);
 
   useEffect(() => {
     // Log view interaction when the artwork is rendered and user is connected
@@ -152,7 +149,7 @@ export function ArtworkCard({ artwork, isRecommended = false, isFavorite = false
               size="icon"
               disabled={isLiking}
               className={`ml-2 transition-all duration-200 ${
-                isLiked 
+                artworkIsFavorite 
                   ? 'text-red-500 hover:text-red-600 scale-110' 
                   : 'text-zinc-400 hover:text-red-400'
               }`}
@@ -163,25 +160,13 @@ export function ArtworkCard({ artwork, isRecommended = false, isFavorite = false
                 }
                 
                 setIsLiking(true);
-                console.log('Toggling favorite - Account:', account, 'TokenID:', artwork.id);
+                console.log('🎯 [ARTWORK CARD] Toggling favorite - Account:', account, 'TokenID:', artwork.id);
                 
                 try {
-                  await mlService.updateUserPreferences(account, artwork.id);
-                  const newIsLiked = !isLiked;
-                  setIsLiked(newIsLiked);
-                  
-                  // Notify parent component about the favorite change
-                  if (onFavoriteChange) {
-                    onFavoriteChange(artwork.id, newIsLiked);
-                  }
-                  
-                  if (newIsLiked) {
-                    console.log(`✅ Added "${artwork.title}" to favorites!`);
-                  } else {
-                    console.log(`ℹ️ "${artwork.title}" was already in favorites`);
-                  }
+                  await toggleFavorite(artwork);
+                  console.log(`✅ [ARTWORK CARD] Successfully toggled favorite for "${artwork.title}"`);
                 } catch (error) {
-                  console.error('Error updating favorites:', error);
+                  console.error('❌ [ARTWORK CARD] Error updating favorites:', error);
                   alert('Failed to update favorites. Please try again.');
                 } finally {
                   setIsLiking(false);
@@ -190,7 +175,7 @@ export function ArtworkCard({ artwork, isRecommended = false, isFavorite = false
             >
               <HeartIcon 
                 className={`h-5 w-5 transition-all duration-200 ${
-                  isLiked ? 'fill-current scale-110' : ''
+                  artworkIsFavorite ? 'fill-current scale-110' : ''
                 } ${isLiking ? 'animate-pulse' : ''}`} 
               />
             </Button>

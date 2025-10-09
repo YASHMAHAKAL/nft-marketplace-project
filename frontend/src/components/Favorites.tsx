@@ -1,95 +1,20 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useWallet } from '../contexts/WalletContext';
+import { useFavorites } from '../contexts/FavoritesContext';
 import { ArtworkCard } from './ArtworkCard';
-import { mlService } from '../services/ml-service';
-import type { Artwork } from '../types/artwork';
 
 export default function Favorites() {
   const { account, isConnected, isLoading: walletLoading, connectWallet } = useWallet();
-  const [favoriteArtworks, setFavoriteArtworks] = useState<Artwork[]>([]);
-  const [allArtworks, setAllArtworks] = useState<Artwork[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { favoriteArtworks, isLoading, refreshFavorites } = useFavorites();
 
-  // Handle favorite changes from ArtworkCard
-  const handleFavoriteChange = (artworkId: string, isFavorite: boolean) => {
-    if (!isFavorite) {
-      // Remove from favorites
-      setFavoriteArtworks(prev => prev.filter(fav => fav.id !== artworkId));
-    }
-    // Note: We don't add to favorites here since this is the favorites page
-    // Items are added through the main gallery
-  };
-
-  // Fetch all NFTs and user favorites
+  // Refresh favorites when component mounts or account changes
   useEffect(() => {
-    const fetchFavorites = async () => {
-      if (!account) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-
-        // First fetch all NFTs to match against favorites
-        const { ethers } = await import('ethers');
-        const { CONTRACT_ADDRESS } = await import('../config/contract');
-        const NFTMarketplace = await import('../abi/NFTMarketplace.json');
-        
-        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545/");
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, NFTMarketplace.abi, provider);
-
-        const fetchedArtworks: Artwork[] = [];
-        const totalSupply = await contract.totalSupply();
-
-        for (let i = 0; i < totalSupply; i++) {
-          const listing = await contract.listings(i);
-          if (listing.price > 0) {
-            const tokenURI = await contract.tokenURI(i);
-            
-            let metadata;
-            if (tokenURI.startsWith("data:application/json")) {
-              metadata = JSON.parse(atob(tokenURI.substring(29)));
-            } else {
-              const metadataResponse = await fetch(tokenURI);
-              metadata = await metadataResponse.json();
-            }
-
-            fetchedArtworks.push({
-              id: i.toString(),
-              title: metadata.title || "Untitled Artwork",
-              description: metadata.description || "No description available.",
-              imageUrl: metadata.image || "",
-              price: ethers.formatEther(listing.price),
-              period: metadata.period || "Classical",
-              type: metadata.type || "Artifact",
-              date: "N/A",
-              location: "On-Chain",
-            });
-          }
-        }
-
-        setAllArtworks(fetchedArtworks);
-
-        // Fetch user favorites
-        const favorites = await mlService.getFavorites(account);
-        const favoriteIds = favorites.map(fav => fav.tokenId.toString());
-        const favoriteArtworksList = fetchedArtworks.filter(artwork => 
-          favoriteIds.includes(artwork.id)
-        );
-        
-        setFavoriteArtworks(favoriteArtworksList);
-      } catch (error) {
-        console.error('Failed to fetch favorites:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFavorites();
-  }, [account]);
+    if (account && isConnected) {
+      refreshFavorites();
+    }
+  }, [account, isConnected, refreshFavorites]);
 
   if (walletLoading) {
     return (
@@ -169,9 +94,7 @@ export default function Favorites() {
               {favoriteArtworks.map((artwork) => (
                 <ArtworkCard 
                   key={artwork.id} 
-                  artwork={artwork} 
-                  isFavorite 
-                  onFavoriteChange={handleFavoriteChange}
+                  artwork={artwork}
                 />
               ))}
             </div>

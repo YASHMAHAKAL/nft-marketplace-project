@@ -9,6 +9,7 @@ import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS } from "../config/contract";
 import { mlService } from "../services/ml-service";
 import { useAccount } from "../hooks/useAccount";
+import { useFavorites } from "../contexts/FavoritesContext";
 
 
 // --- NEW: Import contract ABI -----
@@ -25,35 +26,18 @@ interface GalleryProps {
 
 export function Gallery({ searchQuery }: GalleryProps) {
   const { account, isLoading: isAccountLoading } = useAccount();
+  const { favoriteArtworks, isFavorite, refreshFavorites } = useFavorites();
   const [allArtworks, setAllArtworks] = useState<Artwork[]>([]);
   const [recommendedArtworks, setRecommendedArtworks] = useState<Artwork[]>([]);
-  const [favoriteArtworks, setFavoriteArtworks] = useState<Artwork[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedType, setSelectedType] = useState('All');
   const [selectedPeriod, setSelectedPeriod] = useState('All');
-
-  // Handle favorite changes from ArtworkCard
-  const handleFavoriteChange = (artworkId: string, isFavorite: boolean) => {
-    const artwork = allArtworks.find(art => art.id === artworkId);
-    if (!artwork) return;
-
-    if (isFavorite) {
-      // Add to favorites if not already there
-      setFavoriteArtworks(prev => {
-        if (prev.some(fav => fav.id === artworkId)) return prev;
-        return [...prev, artwork];
-      });
-    } else {
-      // Remove from favorites
-      setFavoriteArtworks(prev => prev.filter(fav => fav.id !== artworkId));
-    }
-  };
 
   useEffect(() => {
     const fetchNFTsAndRecommendations = async () => {
       try {
         setIsLoading(true);
-        console.log('Fetching NFTs and recommendations...');
+        console.log('🎨 [GALLERY] Fetching NFTs and recommendations...');
         
         // Fetch NFTs from smart contract
         const totalSupply = await contract.totalSupply();
@@ -61,7 +45,7 @@ export function Gallery({ searchQuery }: GalleryProps) {
         
         // Reset recommendations when account changes
         setRecommendedArtworks([]);
-        console.log('Total supply:', totalSupply.toString());
+        console.log('📊 [GALLERY] Total supply:', totalSupply.toString());
 
         for (let i = 0; i < totalSupply; i++) {
           const listing = await contract.listings(i);
@@ -90,45 +74,39 @@ export function Gallery({ searchQuery }: GalleryProps) {
             });
           }
         }
+        console.log('✅ [GALLERY] Fetched artworks:', fetchedArtworks);
         setAllArtworks(fetchedArtworks);
 
-        // If user is connected, fetch recommendations and favorites
+        // If user is connected, fetch recommendations and refresh favorites
         if (account) {
           try {
-            console.log('Fetching recommendations for account:', account);
+            console.log('🤖 [GALLERY] Fetching recommendations for account:', account);
             const recommendations = await mlService.getRecommendations(account);
-            console.log('Received recommendations:', recommendations);
-            const recommendedIds = recommendations.map(rec => rec.tokenId.toString());
-            console.log('Recommendation IDs:', recommendedIds);
+            console.log('📋 [GALLERY] Received recommendations:', recommendations);
+            const recommendedIds = recommendations.map(rec => rec.tokenId?.toString()).filter(Boolean);
+            console.log('🔍 [GALLERY] Recommendation IDs:', recommendedIds);
             const recommendedArtworksList = fetchedArtworks.filter(artwork => 
               recommendedIds.includes(artwork.id)
             );
-            console.log('Matched artworks:', recommendedArtworksList);
+            console.log('✅ [GALLERY] Matched artworks:', recommendedArtworksList);
             setRecommendedArtworks(recommendedArtworksList);
 
-            // Fetch favorites
-            const favorites = await mlService.getFavorites(account);
-            console.log('Received favorites:', favorites);
-            const favoriteIds = favorites.map(fav => fav.tokenId.toString());
-            const favoriteArtworksList = fetchedArtworks.filter(artwork => 
-              favoriteIds.includes(artwork.id)
-            );
-            console.log('Matched favorite artworks:', favoriteArtworksList);
-            setFavoriteArtworks(favoriteArtworksList);
+            // Refresh favorites from context
+            await refreshFavorites();
           } catch (error) {
-            console.error("Failed to fetch recommendations and favorites:", error);
+            console.error("❌ [GALLERY] Failed to fetch recommendations:", error);
           }
         }
 
       } catch (error) {
-        console.error("Failed to fetch NFTs:", error);
+        console.error("❌ [GALLERY] Failed to fetch NFTs:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchNFTsAndRecommendations();
-  }, [account]); // Re-run when account changes
+  }, [account, refreshFavorites]); // Re-run when account changes or when favorites context updates
 
   const filteredArtworks = useMemo(() => {
     return allArtworks.filter((artwork) => {
@@ -187,9 +165,7 @@ export function Gallery({ searchQuery }: GalleryProps) {
                   {favoriteArtworks.map((artwork) => (
                     <ArtworkCard 
                       key={artwork.id} 
-                      artwork={artwork} 
-                      isFavorite 
-                      onFavoriteChange={handleFavoriteChange}
+                      artwork={artwork}
                     />
                   ))}
                 </div>
@@ -202,19 +178,13 @@ export function Gallery({ searchQuery }: GalleryProps) {
                 <h3 className="text-3xl text-white mb-8 font-light">Recommended for You</h3>
                 {recommendedArtworks.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {recommendedArtworks.map((artwork) => {
-                      const isFavorite = favoriteArtworks.some(fav => fav.id === artwork.id);
-                      
-                      return (
-                        <ArtworkCard 
-                          key={artwork.id} 
-                          artwork={artwork} 
-                          isRecommended 
-                          isFavorite={isFavorite}
-                          onFavoriteChange={handleFavoriteChange}
-                        />
-                      );
-                    })}
+                    {recommendedArtworks.map((artwork) => (
+                      <ArtworkCard 
+                        key={artwork.id} 
+                        artwork={artwork} 
+                        isRecommended
+                      />
+                    ))}
                   </div>
                 ) : (
                   <p className="text-zinc-400 text-center py-8">
@@ -230,15 +200,12 @@ export function Gallery({ searchQuery }: GalleryProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredArtworks.map((artwork) => {
                   const isRecommended = recommendedArtworks.some(rec => rec.id === artwork.id);
-                  const isFavorite = favoriteArtworks.some(fav => fav.id === artwork.id);
                   
                   return (
                     <ArtworkCard 
                       key={artwork.id} 
                       artwork={artwork} 
                       isRecommended={isRecommended}
-                      isFavorite={isFavorite}
-                      onFavoriteChange={handleFavoriteChange}
                     />
                   );
                 })}
