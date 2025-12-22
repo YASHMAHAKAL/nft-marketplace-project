@@ -1,16 +1,112 @@
-# Node dependencies
-node_modules/
+# ============================================
+# SECRETS & CREDENTIALS (CRITICAL!)
+# ============================================
+# Environment files
+.env
+.env.*
+!.env.example
+*.env
+**/.env
 
-# Python virtual environment
-venv/
-
-# Terraform state and providers
+# Terraform sensitive files
+*.tfvars
+!terraform.tfvars.example
+*.auto.tfvars
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate.*
 .terraform/
-*.tfstate
-*.tfstate.backup
+.terraform.lock.hcl
+
+# AWS credentials
+*.pem
+*.key
+.aws/
+
+# SSH keys
+id_rsa
+id_rsa.pub
+*.ppk
+
+# Kubernetes secrets
+*secret*.yaml
+*secret*.yml
+
+# ============================================
+# BUILD OUTPUTS & DEPENDENCIES
+# ============================================
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+ENV/
+.venv
 
 # Build outputs
 dist/
+build/
+*.egg-info/
+.next/
+out/
 
-# Env Secured
-.env
+# ============================================
+# IDE & OS FILES
+# ============================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ============================================
+# LOGS & TEMPORARY FILES
+# ============================================
+*.log
+logs/
+*.tmp
+*.temp
+.cache/
+
+# ============================================
+# BLOCKCHAIN & SMART CONTRACTS
+# ============================================
+# Hardhat
+cache/
+artifacts/
+typechain/
+typechain-types/
+
+# Deployment records (may contain addresses)
+ignition/deployments/
+
+# ============================================
+# DOCKER & KUBERNETES
+# ============================================
+# Docker
+.dockerignore
+
+# Kubernetes local configs
+kubeconfig
+*.kubeconfig

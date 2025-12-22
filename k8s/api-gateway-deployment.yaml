@@ -14,9 +14,9 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: 480731385241.dkr.ecr.us-east-1.amazonaws.com/nft-marketplace/api-gateway:latest # Placeholder Image URL
+          image: nft-marketplace/api-gateway:latest
           ports:
-            - containerPort: 3001
+            - containerPort: 3005
           resources:
             requests:
               cpu: "100m"
@@ -25,7 +25,6 @@ spec:
               cpu: "200m"
               memory: "256Mi"
 
- 
 ---
 apiVersion: v1
 kind: Service
@@ -36,6 +35,6 @@ spec:
     app: api-gateway
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 3001
-  type: LoadBalancer # Exposes the service to the internet via an AWS Load Balancer
+      port: 3005
+      targetPort: 3005
+  type: ClusterIP
