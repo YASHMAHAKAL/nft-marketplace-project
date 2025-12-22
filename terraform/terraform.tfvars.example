@@ -1,0 +1,35 @@
+# Example terraform.tfvars file
+# Copy this to terraform.tfvars and update with your values
+
+aws_region = "us-east-1"
+environment = "dev"
+project_name = "nft-marketplace"
+
+# VPC Configuration
+vpc_cidr = "10.0.0.0/16"
+availability_zones = ["us-east-1a", "us-east-1b"]
+enable_nat_gateway = false  # Set to true for production (costs extra)
+
+# EKS Configuration
+eks_cluster_version = "1.28"
+eks_node_instance_types = ["t3.medium"]
+eks_node_desired_size = 2
+eks_node_min_size = 1
+eks_node_max_size = 4
+enable_spot_instances = true  # 70% cost savings
+
+# RDS Configuration
+rds_instance_class = "db.t3.micro"  # Free tier eligible
+rds_allocated_storage = 20
+rds_engine_version = "15.4"
+db_name = "nft_marketplace"
+db_username = "dbadmin"
+db_password = "CHANGE_ME_STRONG_PASSWORD"  # Change this!
+
+# Optional
+domain_name = ""  # Leave empty if not using custom domain
+
+tags = {
+  Team = "DevOps"
+  CostCenter = "Engineering"
+}

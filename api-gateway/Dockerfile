@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies with optimizations
-RUN npm ci --only=production && \
+RUN npm ci --omit=dev && \
     npm cache clean --force
 
 # Production stage
@@ -42,7 +42,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node healthcheck.js || exit 1
 
 # Expose port
-EXPOSE 3001
+EXPOSE 3005
 
 # Use dumb-init for proper signal handling
 ENTRYPOINT ["dumb-init", "--"]

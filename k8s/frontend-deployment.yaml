@@ -14,16 +14,16 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: <YOUR_AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/nft-marketplace/frontend:latest # Placeholder
+          image: nft-marketplace/frontend:latest
           ports:
             - containerPort: 80
           resources:
-           requests:
-            cpu: "50m"
-            memory: "64Mi"
-           limits:
-            cpu: "100m"
-            memory: "128Mi"
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
 ---
 apiVersion: v1
 kind: Service

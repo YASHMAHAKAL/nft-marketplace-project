@@ -28,7 +28,7 @@ interface WalletProviderProps {
 export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
   const [account, setAccount] = useState<string | null>(null);
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const connectWallet = async () => {
@@ -37,22 +37,31 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
       setIsLoading(true);
 
       if (!window.ethereum) {
-        throw new Error('MetaMask not installed');
+        const errorMsg = 'MetaMask is not installed. Please install MetaMask browser extension to connect your wallet.';
+        setError(errorMsg);
+        throw new Error(errorMsg);
       }
 
       const provider = new BrowserProvider(window.ethereum);
       const accounts = await provider.send('eth_requestAccounts', []);
-      
+
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         setProvider(provider);
-        // Store connection state
-        localStorage.setItem('walletConnected', 'true');
-        localStorage.setItem('connectedAccount', accounts[0]);
       }
     } catch (error: any) {
       console.error('Failed to connect wallet:', error);
-      setError(error.message || 'Failed to connect wallet');
+
+      // Handle specific error cases
+      if (error.code === 4001) {
+        setError('Connection rejected. Please approve the connection request in MetaMask.');
+      } else if (error.message?.includes('MetaMask')) {
+        setError(error.message);
+      } else {
+        setError('Failed to connect wallet. Please try again.');
+      }
+
+      throw error; // Re-throw so Header can handle it
     } finally {
       setIsLoading(false);
     }
@@ -62,39 +71,7 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     setAccount(null);
     setProvider(null);
     setError(null);
-    localStorage.removeItem('walletConnected');
-    localStorage.removeItem('connectedAccount');
   };
-
-  // Auto-reconnect on page load
-  useEffect(() => {
-    const autoConnect = async () => {
-      try {
-        const wasConnected = localStorage.getItem('walletConnected');
-        const savedAccount = localStorage.getItem('connectedAccount');
-
-        if (wasConnected && savedAccount && window.ethereum) {
-          const provider = new BrowserProvider(window.ethereum);
-          const accounts = await provider.send('eth_accounts', []); // Don't request, just check
-
-          if (accounts.length > 0 && accounts[0] === savedAccount) {
-            setAccount(accounts[0]);
-            setProvider(provider);
-          } else {
-            // Account changed or disconnected, clear storage
-            localStorage.removeItem('walletConnected');
-            localStorage.removeItem('connectedAccount');
-          }
-        }
-      } catch (error) {
-        console.error('Auto-connect failed:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    autoConnect();
-  }, []);
 
   // Listen for account changes
   useEffect(() => {
@@ -104,7 +81,6 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
           disconnectWallet();
         } else if (accounts[0] !== account) {
           setAccount(accounts[0]);
-          localStorage.setItem('connectedAccount', accounts[0]);
         }
       };
 

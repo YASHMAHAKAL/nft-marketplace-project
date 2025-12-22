@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useWallet } from '../contexts/WalletContext';
+import { toast } from "sonner";
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -12,7 +13,30 @@ interface HeaderProps {
 }
 
 export function Header({ onSearch, onMintClick }: HeaderProps) {
-  const { account, isConnected, isLoading, connectWallet } = useWallet();
+  const { account, isConnected, isLoading, connectWallet, error } = useWallet();
+
+  const handleConnectWallet = async () => {
+    try {
+      await connectWallet();
+      toast.success('Wallet connected successfully!');
+    } catch (error: any) {
+      // Error is already set in context, just show toast
+      if (error.message?.includes('MetaMask is not installed')) {
+        toast.error('MetaMask Not Found', {
+          description: 'Please install MetaMask browser extension to connect your wallet.',
+          duration: 5000,
+        });
+      } else if (error.code === 4001) {
+        toast.warning('Connection Rejected', {
+          description: 'You rejected the connection request. Click Connect Wallet to try again.',
+        });
+      } else {
+        toast.error('Connection Failed', {
+          description: 'Failed to connect wallet. Please try again.',
+        });
+      }
+    }
+  };
 
   const formatAddress = (address: string) => {
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
@@ -27,7 +51,7 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
               Ancient Treasures
             </h1>
           </Link>
-          
+
           <nav className="hidden md:flex items-center gap-8">
             <Link to="/" className="text-zinc-300 hover:text-white transition-colors">
               Gallery
@@ -36,7 +60,7 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
               <span>❤️</span>
               Favorites
             </Link>
-            <button 
+            <button
               onClick={onMintClick}
               className="text-zinc-300 hover:text-white transition-colors"
             >
@@ -57,9 +81,9 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
 
           {isConnected && account ? (
             <div className="flex items-center gap-2">
-              <Button 
-                onClick={onMintClick} 
-                variant="outline" 
+              <Button
+                onClick={onMintClick}
+                variant="outline"
                 className="rounded-full bg-white/10 border-white/20 hover:bg-white/20"
               >
                 Create
@@ -69,8 +93,8 @@ export function Header({ onSearch, onMintClick }: HeaderProps) {
               </span>
             </div>
           ) : (
-            <Button 
-              onClick={connectWallet} 
+            <Button
+              onClick={handleConnectWallet}
               disabled={isLoading}
               className="rounded-full bg-primary/90 text-background font-semibold hover:bg-primary disabled:opacity-50"
             >

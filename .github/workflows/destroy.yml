@@ -1,0 +1,82 @@
+name: Destroy AWS Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "destroy" to confirm deletion of ALL resources'
+        required: true
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: 1.6.0
+
+jobs:
+  destroy:
+    name: Destroy Infrastructure
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'destroy'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Get EKS cluster name
+        id: get-cluster
+        run: |
+          cd terraform
+          terraform init
+          echo "cluster_name=$(terraform output -raw eks_cluster_name 2>/dev/null || echo '')" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Delete Kubernetes resources
+        if: steps.get-cluster.outputs.cluster_name != ''
+        run: |
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ steps.get-cluster.outputs.cluster_name }}
+          kubectl delete all --all -n default || true
+          kubectl delete pvc --all || true
+          kubectl delete ingress --all || true
+        continue-on-error: true
+
+      - name: Terraform Destroy
+        run: |
+          cd terraform
+          terraform destroy -auto-approve
+
+      - name: Verify cleanup
+        run: |
+          echo "🔍 Verifying all resources are deleted..."
+          echo ""
+          echo "EKS Clusters:"
+          aws eks list-clusters --region ${{ env.AWS_REGION }} || true
+          echo ""
+          echo "RDS Instances:"
+          aws rds describe-db-instances --region ${{ env.AWS_REGION }} --query 'DBInstances[?contains(DBInstanceIdentifier, `nft-marketplace`)].DBInstanceIdentifier' || true
+          echo ""
+          echo "VPCs:"
+          aws ec2 describe-vpcs --region ${{ env.AWS_REGION }} --filters "Name=tag:Project,Values=nft-marketplace" --query 'Vpcs[].VpcId' || true
+
+      - name: Cleanup summary
+        run: |
+          echo "✅ Infrastructure destroyed successfully"
+          echo "💰 AWS resources deleted - no more charges!"
+          echo "📊 Please verify in AWS Console that all resources are gone"
+          echo ""
+          echo "Services to check:"
+          echo "  - EKS Clusters"
+          echo "  - RDS Instances"  
+          echo "  - VPCs"
+          echo "  - Load Balancers"
+          echo "  - ECR Repositories"
